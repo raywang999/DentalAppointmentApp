@@ -8,3 +8,45 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.auth-form{
+	width:25rem;
+	max-width: 80%;
+	margin: 5rem auto;
+}
+
+.form-control label,
+.form-control input{
+	width:100%;
+	display: block;
+}
+
+.form-control label{
+	margin-bottom: 0.5rem;
+}
+
+.form-control{
+	margin-bottom: 1rem;
+}
+
+.form-actions button,
+.btn {
+	background: rgb(174, 35, 255);
+	font: inherit;
+	border: 1px solid rgb(182, 50, 235);
+	border-radius: 5px;
+	padding: 0.25rem 1rem;
+	margin-right: 1rem;
+	box-shadow: 1px 1px 5px rgb(0,0,0,0.26);
+	color: white;
+	cursor: pointer;
+}
+
+.form-actions button:hover,
+.form-actions button:active,
+.btn:hover,
+.btn:active{
+	background-color: darkcyan;
+	border-color: aquamarine;
+}
+
