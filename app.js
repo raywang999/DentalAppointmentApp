@@ -7,7 +7,7 @@ const isAuth = require('./middleware/is-auth');
 const graphQlSchema = require('./graphql/schema/index');
 const graphQlResolvers = require('./graphql/resolvers/index');
 
-const app = express();
+const app = express(); //middleware-framwork
 
 app.use(bodyParser.json());
 app.use((req, res, next) => {
