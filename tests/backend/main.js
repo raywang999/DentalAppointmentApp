@@ -20,19 +20,22 @@ const tests = [
 ];
 
 main = async () => {
-	await reset();
-	console.log('Running tests...');
-	for (const test of tests){
-		console.log(`---Testing '${test.name}'---`);
-		try {
+	try {
+		await reset();
+		console.log('Running tests...');
+		for (const test of tests){
+			if (!test) continue;
+			console.log(`---Testing '${test.name}'---`);
 			await test.exec();
-		} catch (err){
-			throw err;
-		}
-	};
+		};
+	} catch (err) {
+		throw err;
+	}
 };
 
-main().catch(err => {
-	console.log(`!--Failed '${test.name}'--!`);
+try {
+	main()
+} catch(err) {
+	console.log(`!--Failed--!`);
 	console.log(err);
-});
+};

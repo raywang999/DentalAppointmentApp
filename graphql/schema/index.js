@@ -1,11 +1,6 @@
 const { buildSchema } = require('graphql');
 
 module.exports = buildSchema(`
-type ContactInfo {
-	phoneNumber: String
-	email: String
-}
-
 type Patient {
 	_id: ID!
 	firstName: String!
@@ -13,7 +8,8 @@ type Patient {
 	dateOfBirth: String!
 	gender: String! 
 	toothNumber: Int!
-	contactInfo: ContactInfo!
+	phoneNumber: String
+	email: String
 	referrer: User
 	referee: User
 }

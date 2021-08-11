@@ -2,10 +2,12 @@ const fetch = require('node-fetch');
 const env = require('./env');
 
 const features = {
-	queryAPI : async (queryString) => {
+	queryAPI : async (queryString, variables) => {
 		const requestBody = {
 			query: queryString
 		};
+
+		//console.log(JSON.stringify(requestBody));
 
 		try {
 			const res = await fetch('http://192.168.56.1:8000/graphql', {
@@ -14,6 +16,7 @@ const features = {
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': 'Bearer ' + env.token,
+					'Origin': 'http://localhost:3000'
 				}
 			});
 			if (res.status !== 200 && res.status !== 201) {
@@ -22,7 +25,7 @@ const features = {
 			}
 			return await res.json();
 		} catch(err){
-			return err;
+			throw err;
 		};
 	},
 };
