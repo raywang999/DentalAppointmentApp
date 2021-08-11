@@ -33,9 +33,9 @@ main = async () => {
 	}
 };
 
-try {
-	main()
-} catch(err) {
+main().then(res => {
+	console.log("Success!");
+}).catch(err => {
 	console.log(`!--Failed--!`);
 	console.log(err);
-};
+});

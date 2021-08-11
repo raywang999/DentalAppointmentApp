@@ -2,7 +2,42 @@ const fetch = require('node-fetch');
 const env = require('./env');
 
 const features = {
-	queryAPI : async (queryString, variables) => {
+	createUser: async (user) => {
+		return await features.queryAPI(`
+		mutation {
+			createUser (userInput: {email: "${user.email}", password: "${user.password}"}) {
+				email
+			}
+		}`);
+	},
+
+	login: async (user) => {
+		const loginRes = await features.queryAPI(`
+		query {
+			login (email: "${user.email}", password: "${user.password}") {
+				token
+			}
+		}`);
+		env.token = loginRes.data.login.token;
+		return loginRes;
+	},
+
+	generateRandomString: (length) => {
+		var result = '';
+		var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		var charactersLength = characters.length;
+		for (var i = 0; i < length; i++) {
+			result += characters.charAt(Math.floor(Math.random() *
+				charactersLength));
+		}
+		return result;
+	},
+
+	randomDate: (start, end) => {
+		return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+	},
+
+	queryAPI: async (queryString, variables) => {
 		const requestBody = {
 			query: queryString
 		};
@@ -24,7 +59,7 @@ const features = {
 				throw new Error('queryAPI Failed!');
 			}
 			return await res.json();
-		} catch(err){
+		} catch (err) {
 			throw err;
 		};
 	},

@@ -1,33 +1,21 @@
 const helper = require('./helper');
 const env = require('./env');
 
-env.clientEmail = "test@test.com";
-env.clientPassword = "llysc90-";
+env.user1 = {
+	email: "user1@test.com",
+	password: "llysc90-",
+};
+
+env.user2 = {
+	email: "user2@test.com",
+	password: "llysc90-",
+}
 
 authenticate = async () => {
-	console.log(await helper.queryAPI(`
-		mutation {
-			createUser (userInput: {email: "${env.clientEmail}", password: "${env.clientPassword}"}) {
-				email
-			}
-		}
-	`));
-	console.log(await helper.queryAPI(`
-		mutation {
-			createUser (userInput: {email: "${env.clientEmail}", password: "${env.clientPassword}"}) {
-				email
-			}
-		}
-	`));
-	const loginRes = await helper.queryAPI(`
-	query{
-		login (email: "${env.clientEmail}", password: "${env.clientPassword}"){
-			token
-		}
-	}
-	`);
-	console.log(loginRes);
-	env.token = loginRes.data.login.token;
+	console.log(await helper.createUser(env.user1));
+	console.log(await helper.createUser(env.user1));
+	console.log(await helper.createUser(env.user2));
+	console.log(await helper.login(env.user1));
 };
 
 module.exports = authenticate;

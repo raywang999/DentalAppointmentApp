@@ -1,6 +1,6 @@
 const Patient = require('../../models/patient');
 const User = require('../../models/user');
-const wut = require('./merge');
+//const wut = require('./merge');
 const { transformPatient } = require('./merge');
 
 module.exports = {
@@ -30,22 +30,16 @@ module.exports = {
 			lastName: args.lastName,
 			dateOfBirth: new Date(args.dateOfBirth),
 			gender: args.gender,
-			toothNumber: args.toothNumber,
+			toothNumber: +args.toothNumber,
 			email: args.email,
 			phoneNumber: args.phoneNumber,
 			referrer: req.userId,
 			referee: null
 		});
 		try {
-			const result = await patient.save();
-			let createdPatient = wut.transformPatient(patient);
+			await patient.save();
+			let createdPatient = transformPatient(patient);
 			console.log(createdPatient);
-			/*const creator = await User.findById(req.userId);
-			if (!creator) {
-				throw new Error(`User doesn't exist.`);
-			}
-			//creator.createdPatient.push(event);
-			await creator.save();*/
 			return createdPatient;
 		} catch (err) {
 			console.log(err);
