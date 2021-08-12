@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import AuthPage from './pages/Auth';
 import BookingsPage from './pages/Bookings';
 import EventsPage from './pages/Events';
+import PatientsPage from './pages/Patients';
 import MainNavigation from './components/navigation/MainNavigation';
 import React from 'react';
 import AuthContext from './context/auth-context';
@@ -37,10 +38,12 @@ class App extends React.Component {
             <MainNavigation />
             <main className="main-content">
               <Switch>
-                {this.state.token && <Redirect from="/" to="/events" exact />}
-                {this.state.token && <Redirect from="/auth" to="/events" exact />}
-                <Route path="/events" component={EventsPage} />
+                {/*!-- {this.state.token && <Redirect from="/" to="/events" exact />}
+                {this.state.token && <Redirect from="/auth" to="/events" exact />}/*/}
+                {this.state.token && <Redirect from="/" to="/patients" exact />}
+                {this.state.token && <Redirect from="/auth" to="/patients" exact />}
                 {!this.state.token && (<Route path="/auth" component={AuthPage} />)}
+                {this.state.token && (<Route path="/patients" component={PatientsPage} />)}
                 {this.state.token && (<Route path="/bookings" component={BookingsPage} />)}
                 {!this.state.token && <Redirect to="/auth" exact />}
               </Switch>
