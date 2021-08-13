@@ -98,9 +98,9 @@ class PatientsPage extends Component {
 		this.setState({ creating: false, selectedPatient: null });
 	}
 
-	showDetailHandler = (eventId) => {
+	showDetailHandler = (patientId) => {
 		this.setState(prevState => {
-			const selectedPatient = prevState.events.find(e => e._id === eventId);
+			const selectedPatient = prevState.patients.find(e => e._id === patientId);
 			return { selectedPatient: selectedPatient };
 		});
 	}
@@ -144,6 +144,7 @@ class PatientsPage extends Component {
 						firstName
 						lastName
 						phoneNumber
+						email
 						dateOfBirth
 						gender
 					}
@@ -207,19 +208,30 @@ class PatientsPage extends Component {
 				}
 				{this.state.selectedPatient && (
 					<Modal
-						title={this.state.selectedPatient.title}
+						title={`${this.state.selectedPatient.firstName} - ${this.state.selectedPatient.lastName}`}
 						canCancel
 						canConfirm
 						onCancel={this.modalCancelHandler}
 						onConfirm={this.bookEventHandler}
-						confirmText={this.context.token ? ("Book") : ("Confirm")}
+						confirmText={this.context.token ? ("Refer") : ("Confirm")}
 					>
-						<h1>{this.state.selectedPatient.title}</h1>
 						<h2>
-							${this.state.selectedPatient.price} - {new Date(this.state.selectedPatient.date).toLocaleDateString()}
+							First Name: {this.state.selectedPatient.firstName}
+						</h2>
+						<h2>
+							Last Name: {this.state.selectedPatient.lastName}
+						</h2>
+						<h2>
+							Age: {new Date().getFullYear() - new Date(this.state.selectedPatient.dateOfBirth).getFullYear()}
 						</h2>
 						<p>
-							{this.state.selectedPatient.description}
+							Birth Date: {new Date(this.state.selectedPatient.dateOfBirth).toDateString()}
+						</p>
+						<p>
+							Email: {this.state.selectedPatient.email}
+						</p>
+						<p>
+							Phone Number: {this.state.selectedPatient.phoneNumber}
 						</p>
 					</Modal>
 				)}
@@ -232,7 +244,7 @@ class PatientsPage extends Component {
 					<PatientList
 						patients={this.state.patients}
 						authUserId={this.context.userId}
-						onViewDetail={this.showDetailHandler}
+						onDetail={this.showDetailHandler}
 					/>
 				)}
 			</React.Fragment>
