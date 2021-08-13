@@ -10,6 +10,9 @@ class PatientList extends React.Component {
 				firstName = {patient.firstName}
 				lastName = {patient.lastName}
 				dateOfBirth = {patient.dateOfBirth}
+				toothNumber = {patient.toothNumber}
+				phoneNumber = {patient.phoneNumber}
+				gender = {patient.gender}
 			/>
 		});
 		return (<ul>{patients}</ul>);

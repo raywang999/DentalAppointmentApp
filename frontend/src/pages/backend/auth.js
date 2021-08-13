@@ -11,7 +11,7 @@ env.user2 = {
 	password: "llysc90-",
 }
 
-authenticate = async () => {
+const authenticate = async () => {
 	var resData = await helper.createUser(env.user1);
 	console.log(resData);
 	env.user1._id = resData.data.createUser._id;

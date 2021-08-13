@@ -1,4 +1,4 @@
-const reset = require('./resetDatabase');
+//const reset = require('./resetDatabase');
 const authenticate = require('./auth');
 const patient = require('./patient');
 const env = require('./env');
@@ -20,11 +20,11 @@ const tests = [
 	new Test('Referrals', referrals),
 ];
 
-main = async () => {
+const main = async () => {
 	try {
-		await reset();
+		//await reset();
 		console.log('Running tests...');
-		for (const test of tests){
+		for (const test of tests) {
 			if (!test) continue;
 			console.log(`---Testing '${test.name}'---`);
 			await test.exec();
@@ -34,9 +34,11 @@ main = async () => {
 	}
 };
 
-main().then(() => {
-	console.log("Success!");
-}).catch(err => {
-	console.log(`!--Failed--!`);
-	console.log(err);
-});
+module.exports = () => {
+	main().then(() => {
+		console.log("Success!");
+	}).catch(err => {
+		console.log(`!--Failed--!`);
+		console.log(err);
+	});
+};

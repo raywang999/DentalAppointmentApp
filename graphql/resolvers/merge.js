@@ -2,6 +2,7 @@ const DataLoader = require('dataloader');
 
 const Event = require('../../models/event');
 const User = require('../../models/user');
+const Patient = require('../../models/patient');
 const { dateToString } = require('../../helpers/date');
 
 const eventLoader = new DataLoader((eventIds) => {
@@ -9,9 +10,13 @@ const eventLoader = new DataLoader((eventIds) => {
 });
 
 const userLoader = new DataLoader((userIds) => {
-	console.log(userIds);
 	return User.find({ _id: { $in: userIds } });
 });
+
+const patientLoader = new DataLoader((patientId) => {
+	return Patient.find({ _id: patientId });
+});
+
 const features = {
 	transformBooking: booking => {
 		return {
@@ -32,13 +37,27 @@ const features = {
 	},
 
 	transformPatient: (patient) => {
-		console.log(patient);
-		return {
+		const res= {
 			...patient._doc,
-			date: dateToString(patient.dateOfBirth),
+			dateOfBirth: dateToString(patient.dateOfBirth),
 			referrer: features.user.bind(this, patient.referrer),
 			referee: features.user.bind(this, patient.referee),
 		};
+		return res;
+	},
+
+	transformReferral: (referral) => {
+		const res ={
+			...referral._doc,
+			createdAt: dateToString(referral.createdAt),
+			updatedAt: dateToString(referral.updatedAt),
+			consulationDate: dateToString(referral.consulationDate),
+			treatmentDate: dateToString(referral.treatmentDate),
+			patient: features.patient.bind(this, referral.patient),
+			referrer: features.user.bind(this, referral.referrer),
+			referee: features.user.bind(this, referral.referee),
+		};
+		return res;
 	},
 
 	user: async userId => {
@@ -52,6 +71,11 @@ const features = {
 		} catch (err) {
 			throw err;
 		}
+	},
+
+	patient: async patientId => {
+		const patient = await patientLoader.load(patientId.toString());
+		return features.transformPatient(patient);
 	},
 
 	events: async eventIds => {

@@ -20,7 +20,7 @@ const tests = [
 	new Test('Referrals', referrals),
 ];
 
-main = async () => {
+const main = async () => {
 	try {
 		await reset();
 		console.log('Running tests...');
@@ -34,7 +34,7 @@ main = async () => {
 	}
 };
 
-main().then(() => {
+module.exports = () => main().then(() => {
 	console.log("Success!");
 }).catch(err => {
 	console.log(`!--Failed--!`);

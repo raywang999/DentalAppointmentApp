@@ -19,10 +19,6 @@ const patientSchema = new Schema({
 		type: String,
 		required: true
 	},
-	toothNumber: {
-		type: Number,
-		required: true
-	},
 	email: String,
 	phoneNumber: String,
 	referrer: {

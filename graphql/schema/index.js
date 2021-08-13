@@ -7,7 +7,6 @@ type Patient {
 	lastName: String!
 	dateOfBirth: String!
 	gender: String! 
-	toothNumber: Int!
 	phoneNumber: String
 	email: String
 	referrer: User
@@ -17,13 +16,13 @@ type Patient {
 type Referral{
 	_id: ID!
 	patient: Patient!
+	toothNumber: Int!
 	referrer: User!
 	referee: User!
 	createdAt: String!
 	updatedAt: String!
-	transferReceived: Boolean!
-	consultationDate: String!
-	treatmentDate: String!
+	consultationDate: String
+	treatmentDate: String
 	finalReportSent: Boolean!
 }
 
@@ -31,8 +30,6 @@ type User {
 	_id: ID!
 	email: String!
 	password: String
-	referrals: [Referral!]!
-	patients: [Patient!]!
 }
 
 type authData {
@@ -46,7 +43,6 @@ input PatientInput {
 	lastName: String!
 	dateOfBirth: String!
 	gender: String! 
-	toothNumber: Int!
 	email: String
 	phoneNumber: String
 }
@@ -63,9 +59,9 @@ type RootQuery {
 }
 
 type RootMutation {
-	createPatient(patientInput: PatientInput!): Patient
 	createUser(userInput: UserInput): User
-	referPatient(eventId: ID!): Referral!
+	createPatient(patientInput: PatientInput!): Patient
+	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!): Referral!
 	cancelReferral(referralId: ID!): Referral!
 }
 

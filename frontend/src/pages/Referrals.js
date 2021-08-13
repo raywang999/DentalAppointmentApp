@@ -8,7 +8,7 @@ import PatientList from '../components/Patients/PatientList/PatientList';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
 
-class PatientsPage extends Component {
+class ReferralsPage extends Component {
 	state = {
 		creating: false,
 		patients: [],
@@ -26,6 +26,7 @@ class PatientsPage extends Component {
 			firstNameElRef: React.createRef(),
 			lastNameElRef: React.createRef(),
 			dateOfBirthElRef: React.createRef(),
+			toothNumberElRef: React.createRef(),
 			genderElRef: React.createRef(),
 			phoneNumberElRef: React.createRef(),
 			emailElRef: React.createRef(),
@@ -33,7 +34,7 @@ class PatientsPage extends Component {
 	}
 
 	componentDidMount() {
-		this.fetchPatients();
+		this.fetchReferrals();
 	};
 
 	componentWillUnmount() {
@@ -69,8 +70,8 @@ class PatientsPage extends Component {
 
 		const requestBody = {
 			query: `
-				mutation CreatePatient ($firstName: String!, $lastName: String!, $dateOfBirth: String!, $gender: String!, $email: String, $phoneNumber: String){
-					createPatient (patientInput: {firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, email: $email, phoneNumber: $phoneNumber}){
+				mutation CreatePatient ($firstName: String!, $lastName: String!, $dateOfBirth: String!, $gender: String!, $toothNumber: Int!, $email: String, $phoneNumber: String){
+					createPatient (patientInput: {firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, toothNumber: $toothNumber, email: $email, phoneNumber: $phoneNumber}){
 						_id
 					}
 				}
@@ -134,18 +135,20 @@ class PatientsPage extends Component {
 		this.setState({ selectedPatient: null });
 	}
 
-	fetchPatients = async () => {
+	fetchReferrals = async () => {
 		this.setState({ isLoading: true });
 		const requestBody = {
 			query: `
 				query {
-					patients {
+					referrals {
 						_id
-						firstName
-						lastName
-						phoneNumber
-						dateOfBirth
-						gender
+						toothNumber
+						patient {
+							firstName
+							lastName
+							dateOfBirth
+						}
+						createdAt
 					}
 				}
 			`
@@ -154,7 +157,6 @@ class PatientsPage extends Component {
 		try {
 			const resData = await helpers.queryAPI(requestBody, this.context);
 			const patients = resData.data.patients;
-			console.log(patients);
 			if (this.isActive) {
 				this.setState({ patients: patients });
 			}
@@ -191,6 +193,10 @@ class PatientsPage extends Component {
 								<input type="date" id="dateOfBirth" ref={this.createPatientFormData.dateOfBirthElRef}></input>
 							</div>
 							<div className="form-control">
+								<label htmlFor="toothNumber">Tooth Number</label>
+								<input type="number" id="toothNumber" ref={this.createPatientFormData.toothNumberElRef}></input>
+							</div>
+							<div className="form-control">
 								<label htmlFor="gender">Gender</label>
 								<input type="text" id="gender" ref={this.createPatientFormData.genderElRef}></input>
 							</div>
@@ -205,7 +211,7 @@ class PatientsPage extends Component {
 						</form>
 					</Modal>)
 				}
-				{this.state.selectedPatient && (
+				{/*this.state.selectedPatient && (
 					<Modal
 						title={this.state.selectedPatient.title}
 						canCancel
@@ -222,11 +228,11 @@ class PatientsPage extends Component {
 							{this.state.selectedPatient.description}
 						</p>
 					</Modal>
-				)}
+				)*/}
 				<div className="events-control">
 					<button className="btn" onClick={this.startCreatePatientHandler}>Create Patient</button>
 				</div>
-				{this.state.isLoading ? (
+				{/*this.state.isLoading ? (
 					<Spinner />
 				) : (
 					<PatientList
@@ -234,10 +240,10 @@ class PatientsPage extends Component {
 						authUserId={this.context.userId}
 						onViewDetail={this.showDetailHandler}
 					/>
-				)}
+				)*/}
 			</React.Fragment>
 		);
 	}
 }
 
-export default PatientsPage;
+export default ReferralsPage;

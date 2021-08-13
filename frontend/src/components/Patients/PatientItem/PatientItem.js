@@ -1,15 +1,26 @@
 import React from 'react';
 
-class PatientItem extends React.Component {
-	render(){
-		const props=this.props;
-		return (<li 
-			key = {props.key}
-			className="patient__list-item"
-		>
-			<h1>{props.firstName} {props.lastName}</h1>
-		</li>);
-	}
-}
+import './PatientItem.css';
 
-export default PatientItem;
+class eventItem extends React.Component {
+	render() {
+		return (
+			<li key={this.props.eventId} className="events__list-item">
+				<div>
+					<h1>{this.props.firstName} - {this.props.lastName}</h1>
+					<h2>Date of Birth: {(new Date(this.props.dateOfBirth)).toDateString()}</h2>
+					<h2>Age: {new Date().getFullYear() - new Date(this.props.dateOfBirth).getFullYear()}</h2>
+					<h2>Phone Number: {this.props.phoneNumber}</h2>
+				</div>
+				<div>
+					{<h1>{this.props.gender}</h1>/*this.props.userId === this.props.creatorId ?
+						(<p>You're the owner of this event.</p>) :
+						(<button className="btn" onClick={this.props.onDetail.bind(this, this.props.eventId)}>View Details</button>)
+					*/}
+				</div>
+			</li>
+		);
+	}
+};
+
+export default eventItem;
