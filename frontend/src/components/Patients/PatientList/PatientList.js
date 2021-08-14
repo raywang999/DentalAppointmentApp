@@ -7,13 +7,7 @@ class PatientList extends React.Component {
 		const patients = this.props.patients.map(patient => {
 			return <PatientItem 
 				key = {patient._id}
-				patientId = {patient._id}
-				firstName = {patient.firstName}
-				lastName = {patient.lastName}
-				dateOfBirth = {patient.dateOfBirth}
-				toothNumber = {patient.toothNumber}
-				phoneNumber = {patient.phoneNumber}
-				gender = {patient.gender}
+				patient = {patient}
 				onDetail = {this.props.onDetail}
 			/>
 		});

@@ -7,14 +7,18 @@ import AuthContext from '../context/auth-context';
 import PatientList from '../components/Patients/PatientList/PatientList';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
+import PatientItem from '../components/Patients/PatientItem/PatientItem';
+import PatientDetails from '../components/Patients/PatientDetails/PatientDetails';
+import ReferralList from '../components/Referrals/ReferralsList/ReferralsList';
 
 class ReferralsPage extends Component {
 	state = {
 		creating: false,
-		patients: [],
+		referrals: [],
 		events: [],
 		isLoading: false,
-		selectedPatient: null
+		selectedPatient: null,
+		selectedReferral: null,
 	};
 
 	isActive = true;
@@ -22,14 +26,13 @@ class ReferralsPage extends Component {
 
 	constructor(props) {
 		super(props);
+		if (props.selectedPatient) {
+			this.props.selectedPatient = props.selectedPatient;
+		}
 		this.createPatientFormData = {
-			firstNameElRef: React.createRef(),
-			lastNameElRef: React.createRef(),
-			dateOfBirthElRef: React.createRef(),
+			patientElRef: React.createRef(),
+			refereeElRef: React.createRef(),
 			toothNumberElRef: React.createRef(),
-			genderElRef: React.createRef(),
-			phoneNumberElRef: React.createRef(),
-			emailElRef: React.createRef(),
 		};
 	}
 
@@ -106,35 +109,6 @@ class ReferralsPage extends Component {
 		});
 	}
 
-	bookEventHandler = async () => {
-		if (!this.context.token) {
-			this.setState({ selectedPatient: null });
-			return;
-		}
-		const requestBody = {
-			query: `
-				mutation BookEvent ($id: ID!) {
-					bookEvent(eventId: $id) {
-						_id
-						createdAt
-						updatedAt
-					}
-				}
-			`,
-			variables: {
-				id: this.state.selectedPatient._id
-			}
-		};
-
-		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			console.log(resData);
-		} catch (err) {
-			console.log(err);
-		}
-		this.setState({ selectedPatient: null });
-	}
-
 	fetchReferrals = async () => {
 		this.setState({ isLoading: true });
 		const requestBody = {
@@ -148,6 +122,9 @@ class ReferralsPage extends Component {
 							lastName
 							dateOfBirth
 						}
+						referrer {
+							email
+						}
 						createdAt
 					}
 				}
@@ -156,9 +133,10 @@ class ReferralsPage extends Component {
 
 		try {
 			const resData = await helpers.queryAPI(requestBody, this.context);
-			const patients = resData.data.patients;
+			const referrals = resData.data.referrals;
+			console.log(referrals);
 			if (this.isActive) {
-				this.setState({ patients: patients });
+				this.setState({ referrals: referrals});
 			}
 		} catch (err) {
 			console.log(err);
@@ -169,68 +147,50 @@ class ReferralsPage extends Component {
 	render() {
 		return (
 			<React.Fragment>
-				{(this.state.creating || this.state.selectedPatient) && (<Backdrop />)}
-				{this.state.creating && (
-					<Modal
-						title="Add Patient"
-						canCancel
-						canConfirm
-						onCancel={this.modalCancelHandler}
-						onConfirm={this.modalConfirmHandler}
-						confirmText="Confirm"
-					>
-						<form>
-							<div className="form-control">
-								<label htmlFor="firstName">First Name</label>
-								<input type="text" id="firstName" ref={this.createPatientFormData.firstNameElRef}></input>
-							</div>
-							<div className="form-control">
-								<label htmlFor="lastName">Last Name</label>
-								<input type="text" id="lastName" ref={this.createPatientFormData.lastNameElRef}></input>
-							</div>
-							<div className="form-control">
-								<label htmlFor="dateOfBirth">Date of Birth</label>
-								<input type="date" id="dateOfBirth" ref={this.createPatientFormData.dateOfBirthElRef}></input>
-							</div>
-							<div className="form-control">
-								<label htmlFor="toothNumber">Tooth Number</label>
-								<input type="number" id="toothNumber" ref={this.createPatientFormData.toothNumberElRef}></input>
-							</div>
-							<div className="form-control">
-								<label htmlFor="gender">Gender</label>
-								<input type="text" id="gender" ref={this.createPatientFormData.genderElRef}></input>
-							</div>
-							<div className="form-control">
-								<label htmlFor="phoneNumber">Phone Number</label>
-								<input type="tel" id="phoneNumber" ref={this.createPatientFormData.phoneNumberElRef}></input>
-							</div>
-							<div className="form-control">
-								<label htmlFor="email">Email</label>
-								<input type="email" id="email" ref={this.createPatientFormData.emailElRef}></input>
-							</div>
-						</form>
-					</Modal>)
-				}
-				{/*this.state.selectedPatient && (
+				{(this.state.creating || this.state.selectedPatient) && (
+					<React.Fragment>
+						<Backdrop />
+						<Modal
+							title="Send Referral"
+							canCancel
+							canConfirm
+							onCancel={this.modalCancelHandler}
+							onConfirm={this.modalConfirmHandler}
+							confirmText="Confirm"
+						>
+							<form>
+								<div className="form-control">
+									<label htmlFor="patient">Patient</label>
+									<input type="text" id="patient" ref={this.createPatientFormData.firstNameElRef}></input>
+								</div>
+								<div className="form-control">
+									<label htmlFor="toothNumber">Tooth Number</label>
+									<input type="number" id="toothNumber" ref={this.createPatientFormData.toothNumberElRef}></input>
+								</div>
+								<div className="form-control">
+									<label htmlFor="referee">Doctor</label>
+									<input type="number" id="referee" ref={this.createPatientFormData.refereeElRef}></input>
+								</div>
+							</form>
+						</Modal>)
+					</React.Fragment>
+				)}
+				{this.state.selectedReferral && (
 					<Modal
 						title={this.state.selectedPatient.title}
 						canCancel
 						canConfirm
 						onCancel={this.modalCancelHandler}
 						onConfirm={this.bookEventHandler}
-						confirmText={this.context.token ? ("Book") : ("Confirm")}
+						confirmText={"Confirm"}
 					>
-						<h1>{this.state.selectedPatient.title}</h1>
-						<h2>
-							${this.state.selectedPatient.price} - {new Date(this.state.selectedPatient.date).toLocaleDateString()}
-						</h2>
-						<p>
-							{this.state.selectedPatient.description}
-						</p>
+						<PatientDetails 
+							patient = {this.props.selectedPatient}
+						/>
 					</Modal>
-				)*/}
+				)}
 				<div className="events-control">
-					<button className="btn" onClick={this.startCreatePatientHandler}>Create Patient</button>
+					<button className="btn" onClick={this.startCreatePatientHandler}>Create Referral</button>
 				</div>
 				{/*this.state.isLoading ? (
 					<Spinner />
@@ -241,6 +201,10 @@ class ReferralsPage extends Component {
 						onViewDetail={this.showDetailHandler}
 					/>
 				)*/}
+				<ReferralList 
+					referrals={this.state.referrals}
+					onDetail={this.showDetailHandler}
+				/>
 			</React.Fragment>
 		);
 	}

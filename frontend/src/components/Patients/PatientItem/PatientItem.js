@@ -1,21 +1,19 @@
 import React from 'react';
 
 import './PatientItem.css';
+import PatientDetails from '../PatientDetails/PatientDetails';
 
-class patientItem extends React.Component {
+class PatientItem extends React.Component {
 	render() {
 		return (
-			<li key={this.props.patientId} className="events__list-item">
-				<div>
-					<h1>{this.props.firstName} - {this.props.lastName}</h1>
-					<h2>Date of Birth: {(new Date(this.props.dateOfBirth)).toDateString()}</h2>
-					<h2>Age: {new Date().getFullYear() - new Date(this.props.dateOfBirth).getFullYear()}</h2>
-					<h2>Phone Number: {this.props.phoneNumber}</h2>
-				</div>
+			<li key={this.props.patient._id} className="events__list-item">
+				<PatientDetails 
+					patient={this.props.patient}
+				/>
 				<div>
 					<button
 						className="btn"
-						onClick={this.props.onDetail.bind(this, this.props.patientId)}
+						onClick={this.props.onDetail.bind(this, this.props.patient._id)}
 					>View Details</button>
 				</div>
 			</li>
@@ -23,4 +21,4 @@ class patientItem extends React.Component {
 	}
 };
 
-export default patientItem;
+export default PatientItem;

@@ -7,6 +7,7 @@ import AuthContext from '../context/auth-context';
 import PatientList from '../components/Patients/PatientList/PatientList';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
+import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
 
 class PatientsPage extends Component {
 	state = {
@@ -99,6 +100,7 @@ class PatientsPage extends Component {
 	}
 
 	showDetailHandler = (patientId) => {
+		console.log(patientId);
 		this.setState(prevState => {
 			const selectedPatient = prevState.patients.find(e => e._id === patientId);
 			return { selectedPatient: selectedPatient };
@@ -241,7 +243,7 @@ class PatientsPage extends Component {
 				{this.state.isLoading ? (
 					<Spinner />
 				) : (
-					<PatientList
+					<PatientSearch
 						patients={this.state.patients}
 						authUserId={this.context.userId}
 						onDetail={this.showDetailHandler}
