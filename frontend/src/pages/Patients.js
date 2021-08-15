@@ -66,7 +66,6 @@ class PatientsPage extends Component {
 		this.setState({ creating: false });
 
 		formData.toothNumber = + formData.toothNumber;
-		console.log(formData);
 
 		const requestBody = {
 			query: `
@@ -157,7 +156,6 @@ class PatientsPage extends Component {
 		try {
 			const resData = await helpers.queryAPI(requestBody, this.context);
 			const patients = resData.data.patients;
-			console.log(patients);
 			if (this.isActive) {
 				this.setState({ patients: patients });
 			}
@@ -165,6 +163,10 @@ class PatientsPage extends Component {
 			console.log(err);
 		}
 		this.setState({ isLoading: false });
+	}
+
+	getPatients() {
+		return this.state.patients;
 	}
 
 	render() {

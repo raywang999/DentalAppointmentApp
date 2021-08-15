@@ -5,23 +5,20 @@ import PatientList from '../PatientList/PatientList';
 class PatientSearch extends React.Component {
 	state = {
 		value: '',
-		patients: [],
-		filteredPatients: [],
 	}
 	constructor(props) {
 		super(props);
 		this.state.value = '';
-		this.state.patients = props.patients;
-		this.state.filteredPatients = this.filterPatients();
 	}
 
 	handleChange(event) {
 		const value=event.target.value;
-		this.setState({value: value, filteredPatients: this.filterPatients()});
+		this.setState({value: value});
 	}
 
 	filterPatients() {
-		const res =this.state.patients.filter(patient => {
+		console.log("Patient Search Props",this.props.patients);
+		const res =this.props.patients.filter(patient => {
 			var res = false;
 			Object.values(patient).forEach(value => {
 				if (value && value.toLowerCase().search(this.state.value.toLowerCase()) !== -1){
@@ -30,12 +27,7 @@ class PatientSearch extends React.Component {
 			});
 			return res;
 		});
-		console.log(res);
 		return res;
-	}
-
-	handleOnDetail(){
-		console.log("?");
 	}
 
 	render() {
@@ -49,8 +41,8 @@ class PatientSearch extends React.Component {
 			>
 			</input>
 			<PatientList 
-				patients={this.state.filteredPatients}
-				onDetail={this.handleOnDetail}
+				patients={this.filterPatients()}
+				onDetail={this.props.onDetail}
 			/>
 		</React.Fragment>);
 	}

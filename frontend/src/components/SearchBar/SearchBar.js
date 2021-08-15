@@ -1,6 +1,9 @@
 import React from 'react';
 
 class SearchBar extends React.Component {
+	state = {
+		
+	}
 	constructor(props){
 		super(props);
 		this.state.currentInputValue='';

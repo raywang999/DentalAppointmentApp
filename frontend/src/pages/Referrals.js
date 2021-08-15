@@ -136,7 +136,7 @@ class ReferralsPage extends Component {
 			const referrals = resData.data.referrals;
 			console.log(referrals);
 			if (this.isActive) {
-				this.setState({ referrals: referrals});
+				this.setState({ referrals: referrals });
 			}
 		} catch (err) {
 			console.log(err);
@@ -184,27 +184,22 @@ class ReferralsPage extends Component {
 						onConfirm={this.bookEventHandler}
 						confirmText={"Confirm"}
 					>
-						<PatientDetails 
-							patient = {this.props.selectedPatient}
+						<PatientDetails
+							patient={this.props.selectedPatient}
 						/>
 					</Modal>
 				)}
 				<div className="events-control">
 					<button className="btn" onClick={this.startCreatePatientHandler}>Create Referral</button>
 				</div>
-				{/*this.state.isLoading ? (
+				{this.state.isLoading ? (
 					<Spinner />
 				) : (
-					<PatientList
-						patients={this.state.patients}
-						authUserId={this.context.userId}
-						onViewDetail={this.showDetailHandler}
+					<ReferralList
+						getReferrals={this.state.getReferrals}
+						onDetail={this.showDetailHandler}
 					/>
-				)*/}
-				<ReferralList 
-					referrals={this.state.referrals}
-					onDetail={this.showDetailHandler}
-				/>
+				)}
 			</React.Fragment>
 		);
 	}
