@@ -55,6 +55,7 @@ input UserInput {
 type RootQuery {
 	patients: [Patient!]!
 	referrals: [Referral!]!
+	users: [User!]!
 	login(email: String!, password: String!): authData!
 }
 

@@ -13,8 +13,8 @@ class PatientItem extends React.Component {
 				<div>
 					<button
 						className="btn"
-						onClick={this.props.onDetail.bind(this, this.props.patient._id)}
-					>View Details</button>
+						onClick={this.props.onDetail.bind(this, this.props.patient)}
+					>{this.props.buttonText ? (this.props.buttonText) : ("View Details")}</button>
 				</div>
 			</li>
 		);

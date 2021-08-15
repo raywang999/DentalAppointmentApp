@@ -43,6 +43,7 @@ class PatientSearch extends React.Component {
 			<PatientList 
 				patients={this.filterPatients()}
 				onDetail={this.props.onDetail}
+				buttonText={this.props.buttonText}
 			/>
 		</React.Fragment>);
 	}

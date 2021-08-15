@@ -9,6 +9,7 @@ class PatientList extends React.Component {
 				key = {patient._id}
 				patient = {patient}
 				onDetail = {this.props.onDetail}
+				buttonText = {this.props.buttonText}
 			/>
 		});
 		return (<ul>{patients}</ul>);

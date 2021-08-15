@@ -10,12 +10,15 @@ import helpers from '../helpers/helpers';
 import PatientItem from '../components/Patients/PatientItem/PatientItem';
 import PatientDetails from '../components/Patients/PatientDetails/PatientDetails';
 import ReferralList from '../components/Referrals/ReferralsList/ReferralsList';
+import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
 
 class ReferralsPage extends Component {
 	state = {
 		creating: false,
 		referrals: [],
+		patients: [],
 		events: [],
+		users: [],
 		isLoading: false,
 		selectedPatient: null,
 		selectedReferral: null,
@@ -26,17 +29,17 @@ class ReferralsPage extends Component {
 
 	constructor(props) {
 		super(props);
-		if (props.selectedPatient) {
-			this.props.selectedPatient = props.selectedPatient;
-		}
-		this.createPatientFormData = {
-			patientElRef: React.createRef(),
-			refereeElRef: React.createRef(),
-			toothNumberElRef: React.createRef(),
-		};
+		this.patientElRef = React.createRef();
+		this.refereeElRef = React.createRef();
+		this.toothNumberElRef = React.createRef();
 	}
 
 	componentDidMount() {
+		if (this.props.location&&this.props.location.state){
+			this.setState({selectedPatient: this.props.location.state.selectedPatient});
+		}
+		this.fetchUsers();
+		this.fetchPatients();
 		this.fetchReferrals();
 	};
 
@@ -50,32 +53,38 @@ class ReferralsPage extends Component {
 
 	modalConfirmHandler = async () => {
 		let dataIsValid = true;
-		const formData = {
-			...Object.fromEntries(
-				Object.entries(this.createPatientFormData).map(
-					([key, value]) => {
-						if (!value || !value.current.value) {
-							dataIsValid = false;
-						} else {
-							value = value.current.value;
-						} return [key.replace('ElRef', ''), value];
-					})
-			)
-		};
-		if (!dataIsValid) {
+		const refereeId = this.refereeElRef.current.value;
+		const toothNumber = this.toothNumberElRef.current.value;
+		if (!this.state.selectedPatient||!refereeId||!toothNumber){
 			alert("Incomplete Data!");
 			return;
 		}
-		this.setState({ creating: false });
+		const patientId = this.state.selectedPatient._id;
+		
+		this.setState({ creating: false, selectedPatient: null});
 
-		formData.toothNumber = + formData.toothNumber;
+		const formData = {
+			refereeId: refereeId,
+			patientId: patientId,
+			toothNumber: +toothNumber,
+		};
 		console.log(formData);
 
 		const requestBody = {
 			query: `
-				mutation CreatePatient ($firstName: String!, $lastName: String!, $dateOfBirth: String!, $gender: String!, $toothNumber: Int!, $email: String, $phoneNumber: String){
-					createPatient (patientInput: {firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, toothNumber: $toothNumber, email: $email, phoneNumber: $phoneNumber}){
+				mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!){
+					createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber){
 						_id
+						toothNumber
+						patient {
+							firstName
+							lastName
+							dateOfBirth
+						}
+						referrer {
+							email
+						}
+						createdAt
 					}
 				}
 			`,
@@ -85,13 +94,11 @@ class ReferralsPage extends Component {
 		try {
 			const resData = await helpers.queryAPI(requestBody, this.context);
 			this.setState(prevState => {
-				const updatedPatients = [...prevState.patients];
-				updatedPatients.push({
-					...formData,
-					_id: resData.data.createPatient._id,
-					referrer: this.context.userId,
+				const updatedReferrals = [...prevState.referrals];
+				updatedReferrals.push({
+					...resData.data.createReferral,
 				});
-				return { patients: updatedPatients };
+				return { referrals: updatedReferrals };
 			});
 		} catch (err) {
 			console.log(err);
@@ -144,7 +151,63 @@ class ReferralsPage extends Component {
 		this.setState({ isLoading: false });
 	}
 
+	fetchPatients = async () => {
+		this.setState({ isLoading: true });
+		const requestBody = {
+			query: `
+				query {
+					patients {
+						_id
+						firstName
+						lastName
+						phoneNumber
+						email
+						dateOfBirth
+						gender
+					}
+				}
+			`
+		};
+
+		try {
+			const resData = await helpers.queryAPI(requestBody, this.context);
+			const patients = resData.data.patients;
+			if (this.isActive) {
+				this.setState({ patients: patients });
+			}
+		} catch (err) {
+			console.log(err);
+		}
+		this.setState({ isLoading: false });
+	}
+
+	fetchUsers = async () => {
+		this.setState({ isLoading: true });
+		const requestBody = {
+			query: `
+				query {
+					users {
+						_id
+						email
+					}
+				}
+			`
+		};
+
+		try {
+			const resData = await helpers.queryAPI(requestBody, this.context);
+			const users = resData.data.users;
+			if (this.isActive) {
+				this.setState({ users: users });
+			}
+		} catch (err) {
+			console.log(err);
+		}
+		this.setState({ isLoading: false });
+	}
+
 	render() {
+		console.log("ReferralsPage.render()", this.state.referrals);
 		return (
 			<React.Fragment>
 				{(this.state.creating || this.state.selectedPatient) && (
@@ -161,15 +224,30 @@ class ReferralsPage extends Component {
 							<form>
 								<div className="form-control">
 									<label htmlFor="patient">Patient</label>
-									<input type="text" id="patient" ref={this.createPatientFormData.firstNameElRef}></input>
+									{!this.state.selectedPatient ? (
+										<PatientSearch
+											patients={this.state.patients}
+											onDetail={((patient) => { this.setState({ selectedPatient: patient }) }).bind(this)}
+											buttonText="Select"
+										/>
+									) : (<div>
+										Selected Patient: <PatientDetails
+											patient={this.state.selectedPatient}
+										/>
+									</div>
+									)}
 								</div>
 								<div className="form-control">
 									<label htmlFor="toothNumber">Tooth Number</label>
-									<input type="number" id="toothNumber" ref={this.createPatientFormData.toothNumberElRef}></input>
+									<input type="number" id="toothNumber" ref={this.toothNumberElRef}></input>
 								</div>
 								<div className="form-control">
 									<label htmlFor="referee">Doctor</label>
-									<input type="number" id="referee" ref={this.createPatientFormData.refereeElRef}></input>
+									<select id="referee" ref={this.refereeElRef}>
+										{this.state.users.map(user => {
+											return <option value={user._id}>{user.email}</option>
+										})}
+									</select>
 								</div>
 							</form>
 						</Modal>)
@@ -181,7 +259,7 @@ class ReferralsPage extends Component {
 						canCancel
 						canConfirm
 						onCancel={this.modalCancelHandler}
-						onConfirm={this.bookEventHandler}
+						onConfirm={this.createReferralHandler}
 						confirmText={"Confirm"}
 					>
 						<PatientDetails
@@ -196,7 +274,7 @@ class ReferralsPage extends Component {
 					<Spinner />
 				) : (
 					<ReferralList
-						getReferrals={this.state.getReferrals}
+						referrals={this.state.referrals}
 						onDetail={this.showDetailHandler}
 					/>
 				)}

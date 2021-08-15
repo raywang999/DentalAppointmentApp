@@ -8,10 +8,12 @@ import PatientList from '../components/Patients/PatientList/PatientList';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
 import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
+import { Redirect } from 'react-router-dom';
 
 class PatientsPage extends Component {
 	state = {
 		creating: false,
+		creatingReferral: false,
 		patients: [],
 		events: [],
 		isLoading: false,
@@ -98,41 +100,16 @@ class PatientsPage extends Component {
 		this.setState({ creating: false, selectedPatient: null });
 	}
 
-	showDetailHandler = (patientId) => {
-		console.log(patientId);
-		this.setState(prevState => {
-			const selectedPatient = prevState.patients.find(e => e._id === patientId);
-			return { selectedPatient: selectedPatient };
-		});
+	showDetailHandler = (patient) => {
+		this.setState({selectedPatient: patient});
 	}
 
-	bookEventHandler = async () => {
+	referPatientHandler() {
 		if (!this.context.token) {
 			this.setState({ selectedPatient: null });
 			return;
 		}
-		const requestBody = {
-			query: `
-				mutation BookEvent ($id: ID!) {
-					bookEvent(eventId: $id) {
-						_id
-						createdAt
-						updatedAt
-					}
-				}
-			`,
-			variables: {
-				id: this.state.selectedPatient._id
-			}
-		};
-
-		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			console.log(resData);
-		} catch (err) {
-			console.log(err);
-		}
-		this.setState({ selectedPatient: null });
+		this.setState({ creatingReferral: true });
 	}
 
 	fetchPatients = async () => {
@@ -210,13 +187,17 @@ class PatientsPage extends Component {
 						</form>
 					</Modal>)
 				}
+				{this.state.creatingReferral && (<Redirect to={{
+					pathname: "/referrals",
+					state: {selectedPatient: this.state.selectedPatient}
+				}}/>)}
 				{this.state.selectedPatient && (
 					<Modal
 						title={`${this.state.selectedPatient.firstName} - ${this.state.selectedPatient.lastName}`}
 						canCancel
 						canConfirm
 						onCancel={this.modalCancelHandler}
-						onConfirm={this.bookEventHandler}
+						onConfirm={this.referPatientHandler.bind(this)}
 						confirmText={this.context.token ? ("Refer") : ("Confirm")}
 					>
 						<h2>
