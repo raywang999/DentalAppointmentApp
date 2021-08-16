@@ -1,11 +1,11 @@
 const helper = require('./helper');
 const env = require('./env');
 
-const createReferral = async (patientId, refereeId, toothNumber) => {
+const createReferral = async (patientId, refereeId, toothNumber, comments) => {
 	try {
 		const requestBody = `
 			mutation {
-				createReferral(patientId: "${patientId}" refereeId: "${refereeId}" toothNumber: ${toothNumber}) {
+				createReferral(patientId: "${patientId}" refereeId: "${refereeId}" toothNumber: ${toothNumber} comments:"${comments}") {
 					_id
 					patient {
 						_id
@@ -34,6 +34,7 @@ const createReferral = async (patientId, refereeId, toothNumber) => {
 						_id
 						email
 					}
+					comments
 					toothNumber
 					createdAt
 					updatedAt
@@ -70,7 +71,7 @@ const referrals = async () => {
 	try {
 		console.log(await helper.login(env.user1));
 		const patients = (await helper.fetchPatients()).data.patients;
-		const ref = (await createReferral(patients[0]._id, env.user2._id, Math.floor(Math.random() * 100))).data.createReferral;
+		const ref = (await createReferral(patients[0]._id, env.user2._id, Math.floor(Math.random() * 100), "My tooth hasa  cavity")).data.createReferral;
 		console.log(ref);
 		console.log(await fetchReferrals());
 	} catch (err) {

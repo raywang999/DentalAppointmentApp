@@ -4,10 +4,8 @@ import Modal from '../components/modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
 import './Patients.css';
 import AuthContext from '../context/auth-context';
-import PatientList from '../components/Patients/PatientList/PatientList';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
-import PatientItem from '../components/Patients/PatientItem/PatientItem';
 import PatientDetails from '../components/Patients/PatientDetails/PatientDetails';
 import ReferralList from '../components/Referrals/ReferralsList/ReferralsList';
 import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
@@ -32,11 +30,12 @@ class ReferralsPage extends Component {
 		this.patientElRef = React.createRef();
 		this.refereeElRef = React.createRef();
 		this.toothNumberElRef = React.createRef();
+		this.commentsElRef = React.createRef();
 	}
 
 	componentDidMount() {
-		if (this.props.location&&this.props.location.state){
-			this.setState({selectedPatient: this.props.location.state.selectedPatient});
+		if (this.props.location && this.props.location.state) {
+			this.setState({ selectedPatient: this.props.location.state.selectedPatient });
 		}
 		this.fetchUsers();
 		this.fetchPatients();
@@ -52,28 +51,28 @@ class ReferralsPage extends Component {
 	};
 
 	modalConfirmHandler = async () => {
-		let dataIsValid = true;
 		const refereeId = this.refereeElRef.current.value;
 		const toothNumber = this.toothNumberElRef.current.value;
-		if (!this.state.selectedPatient||!refereeId||!toothNumber){
+		const comments = this.commentsElRef.current.value;
+		if (!this.state.selectedPatient || !refereeId || !toothNumber || !comments) {
 			alert("Incomplete Data!");
 			return;
 		}
 		const patientId = this.state.selectedPatient._id;
-		
-		this.setState({ creating: false, selectedPatient: null});
+
+		this.setState({ creating: false, selectedPatient: null });
 
 		const formData = {
 			refereeId: refereeId,
 			patientId: patientId,
+			comments: comments,
 			toothNumber: +toothNumber,
 		};
-		console.log(formData);
 
 		const requestBody = {
 			query: `
-				mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!){
-					createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber){
+				mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!, $comments: String){
+					createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber, comments: $comments){
 						_id
 						toothNumber
 						patient {
@@ -81,6 +80,7 @@ class ReferralsPage extends Component {
 							lastName
 							dateOfBirth
 						}
+						comments
 						referrer {
 							email
 						}
@@ -109,11 +109,9 @@ class ReferralsPage extends Component {
 		this.setState({ creating: false, selectedPatient: null });
 	}
 
-	showDetailHandler = (eventId) => {
-		this.setState(prevState => {
-			const selectedPatient = prevState.events.find(e => e._id === eventId);
-			return { selectedPatient: selectedPatient };
-		});
+	showDetailHandler = (referral) => {
+		console.log(referral);
+		this.setState({ selectedReferral: referral});
 	}
 
 	fetchReferrals = async () => {
@@ -132,6 +130,7 @@ class ReferralsPage extends Component {
 						referrer {
 							email
 						}
+						comments
 						createdAt
 					}
 				}
@@ -207,7 +206,6 @@ class ReferralsPage extends Component {
 	}
 
 	render() {
-		console.log("ReferralsPage.render()", this.state.referrals);
 		return (
 			<React.Fragment>
 				{(this.state.creating || this.state.selectedPatient) && (
@@ -242,6 +240,10 @@ class ReferralsPage extends Component {
 									<input type="number" id="toothNumber" ref={this.toothNumberElRef}></input>
 								</div>
 								<div className="form-control">
+									<label htmlFor="comments">Comments</label>
+									<textarea id="comments" ref={this.commentsElRef}></textarea>
+								</div>
+								<div className="form-control">
 									<label htmlFor="referee">Doctor</label>
 									<select id="referee" ref={this.refereeElRef}>
 										{this.state.users.map(user => {
@@ -255,15 +257,15 @@ class ReferralsPage extends Component {
 				)}
 				{this.state.selectedReferral && (
 					<Modal
-						title={this.state.selectedPatient.title}
+						title="Referral Details"
 						canCancel
 						canConfirm
 						onCancel={this.modalCancelHandler}
-						onConfirm={this.createReferralHandler}
+						onConfirm={this.modalCancelHandler}
 						confirmText={"Confirm"}
 					>
 						<PatientDetails
-							patient={this.props.selectedPatient}
+							patient={this.selectedReferral.patient}
 						/>
 					</Modal>
 				)}

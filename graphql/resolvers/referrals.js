@@ -26,6 +26,7 @@ module.exports = {
 			patient: args.patientId,
 			referrer: req.userId,
 			referee: args.refereeId,
+			comments: args.comments,
 			toothNumber: +args.toothNumber,
 			consultationDate: null,
 			treatmentDate: null,

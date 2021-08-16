@@ -9,10 +9,9 @@ module.exports = {
 		const userId = req.userId;
 		try {
 			const patients = await Patient.find({ $or: [{ referrer: userId }, { referee: userId }] });
-			const res= patients.map(patient => {
+			return patients.map(patient => {
 				return transformPatient(patient);
 			});
-			return res;
 		} catch (err) {
 			throw err;
 		}
@@ -21,23 +20,21 @@ module.exports = {
 		if (!req.isAuth) {
 			throw new Error('Unauthenticated!');
 		}
-		args = args.patientInput;
+		const patientInput = args.patientInput;
 		const patient = new Patient({
-			firstName: args.firstName,
-			lastName: args.lastName,
-			dateOfBirth: new Date(args.dateOfBirth),
-			gender: args.gender,
-			email: args.email,
-			phoneNumber: args.phoneNumber,
+			firstName: patientInput.firstName,
+			lastName: patientInput.lastName,
+			dateOfBirth: new Date(patientInput.dateOfBirth),
+			gender: patientInput.gender,
+			email: patientInput.email,
+			phoneNumber: patientInput.phoneNumber,
 			referrer: req.userId,
 			referee: null
 		});
 		try {
 			await patient.save();
-			let createdPatient = transformPatient(patient);
-			return createdPatient;
+			return transformPatient(patient);
 		} catch (err) {
-			console.log(err);
 			throw err;
 		}
 	}

@@ -1,5 +1,4 @@
 import React from 'react';
-import helpers from '../../../helpers/helpers';
 import PatientList from '../PatientList/PatientList';
 
 class PatientSearch extends React.Component {

@@ -9,7 +9,12 @@ env.user1 = {
 env.user2 = {
 	email: "user2@test.com",
 	password: "llysc90-",
-}
+};
+
+env.qian = {
+	email: "qian@gmail.com",
+	password: "llysc90-",
+};
 
 const authenticate = async () => {
 	var resData = await helper.createUser(env.user1);
@@ -18,6 +23,7 @@ const authenticate = async () => {
 	console.log(await helper.createUser(env.user1));
 	resData = await helper.createUser(env.user2);
 	console.log(resData);
+	console.log(await helper.createUser(env.qian));
 	env.user2._id = resData.data.createUser._id;
 	console.log(await helper.login(env.user1));
 };

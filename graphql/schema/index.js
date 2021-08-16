@@ -17,6 +17,7 @@ type Referral{
 	_id: ID!
 	patient: Patient!
 	toothNumber: Int!
+	comments: String
 	referrer: User!
 	referee: User!
 	createdAt: String!
@@ -62,7 +63,7 @@ type RootQuery {
 type RootMutation {
 	createUser(userInput: UserInput): User
 	createPatient(patientInput: PatientInput!): Patient
-	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!): Referral!
+	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!, comments: String): Referral!
 	cancelReferral(referralId: ID!): Referral!
 }
 

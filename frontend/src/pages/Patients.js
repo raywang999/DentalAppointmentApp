@@ -4,7 +4,6 @@ import Modal from '../components/modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
 import './Patients.css';
 import AuthContext from '../context/auth-context';
-import PatientList from '../components/Patients/PatientList/PatientList';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
 import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
@@ -140,10 +139,6 @@ class PatientsPage extends Component {
 			console.log(err);
 		}
 		this.setState({ isLoading: false });
-	}
-
-	getPatients() {
-		return this.state.patients;
 	}
 
 	render() {

@@ -19,6 +19,9 @@ const referralSchema = new Schema({
 		type: Number,
 		required: true
 	},
+	comments: {
+		type: String,
+	},
 	consultationDate: {
 		type: Date
 	},
