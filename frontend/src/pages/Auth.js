@@ -65,7 +65,6 @@ class AuthPage extends Component {
 		}
 
 		try {
-			console.log(requestBody);
 			const resData = await helpers.queryAPI(requestBody, this.context);
 			if (!this.state.isLogin){
 				this.setState({isLogin: true});
@@ -75,7 +74,8 @@ class AuthPage extends Component {
 				this.context.login(
 					resData.data.login.token,
 					resData.data.login.userId,
-					resData.data.login.tokenExpiration
+					resData.data.login.tokenExpiration,
+					email,
 				);
 			}
 		} catch (err) {

@@ -9,6 +9,7 @@ import helpers from '../helpers/helpers';
 import PatientDetails from '../components/Patients/PatientDetails/PatientDetails';
 import ReferralList from '../components/Referrals/ReferralsList/ReferralsList';
 import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
+import ReferralStatistic from '../components/Referrals/ReferralStatistics/ReferralStatistics';
 
 class ReferralsPage extends Component {
 	state = {
@@ -60,7 +61,7 @@ class ReferralsPage extends Component {
 		}
 		const patientId = this.state.selectedPatient._id;
 
-		this.setState({ creating: false, selectedPatient: null });
+		this.setState({ creating: false, selectedPatient: null, isLoading: true});
 
 		const formData = {
 			refereeId: refereeId,
@@ -84,6 +85,9 @@ class ReferralsPage extends Component {
 						referrer {
 							email
 						}
+						referee{
+							email
+						}
 						createdAt
 					}
 				}
@@ -103,6 +107,7 @@ class ReferralsPage extends Component {
 		} catch (err) {
 			console.log(err);
 		}
+		this.setState({isLoading: false});
 	};
 
 	modalCancelHandler = () => {
@@ -128,6 +133,9 @@ class ReferralsPage extends Component {
 							dateOfBirth
 						}
 						referrer {
+							email
+						}
+						referee {
 							email
 						}
 						comments
@@ -279,6 +287,11 @@ class ReferralsPage extends Component {
 						referrals={this.state.referrals}
 						onDetail={this.showDetailHandler}
 					/>
+				)}
+				{this.state.isLoading ? (
+					<Spinner />
+				) : (
+					<ReferralStatistic referrals={this.state.referrals}/>
 				)}
 			</React.Fragment>
 		);

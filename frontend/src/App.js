@@ -11,15 +11,16 @@ import AuthContext from './context/auth-context';
 class App extends React.Component {
   state = {
     token: null,
-    userId: null
+    userId: null,
+    email: null,
   }
 
-  login = (token, userId, tokenExpiration) => {
-    this.setState({ token: token, userId: userId });
+  login = (token, userId, tokenExpiration, email) => {
+    this.setState({ token: token, userId: userId, email: email});
   }
 
   logout = () => {
-    this.setState({ token: null, userId: null });
+    this.setState({ token: null, userId: null, email: null });
   }
 
   render() {
@@ -30,6 +31,7 @@ class App extends React.Component {
             value={{
               token: this.state.token,
               userId: this.state.userId,
+              email: this.state.email,
               login: this.login,
               logout: this.logout
             }}

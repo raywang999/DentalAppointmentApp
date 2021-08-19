@@ -16,7 +16,6 @@ class PatientSearch extends React.Component {
 	}
 
 	filterPatients() {
-		console.log("Patient Search Props",this.props.patients);
 		const res =this.props.patients.filter(patient => {
 			var res = false;
 			Object.values(patient).forEach(value => {
