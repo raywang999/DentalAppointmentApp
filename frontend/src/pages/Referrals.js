@@ -10,6 +10,7 @@ import PatientDetails from '../components/Patients/PatientDetails/PatientDetails
 import ReferralList from '../components/Referrals/ReferralsList/ReferralsList';
 import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
 import ReferralStatistic from '../components/Referrals/ReferralStatistics/ReferralStatistics';
+import ReferralTable from '../components/Referrals/ReferralTable/ReferralTable';
 
 class ReferralsPage extends Component {
 	state = {
@@ -61,7 +62,8 @@ class ReferralsPage extends Component {
 		}
 		const patientId = this.state.selectedPatient._id;
 
-		this.setState({ creating: false, selectedPatient: null, isLoading: true});
+		this.setState({ isLoading: true });
+		this.modalCancelHandler();
 
 		const formData = {
 			refereeId: refereeId,
@@ -107,16 +109,16 @@ class ReferralsPage extends Component {
 		} catch (err) {
 			console.log(err);
 		}
-		this.setState({isLoading: false});
+		this.setState({ isLoading: false });
 	};
 
 	modalCancelHandler = () => {
-		this.setState({ creating: false, selectedPatient: null });
+		this.setState({ creating: false, selectedPatient: null, selectedReferral: null});
 	}
 
 	showDetailHandler = (referral) => {
 		console.log(referral);
-		this.setState({ selectedReferral: referral});
+		this.setState({ selectedReferral: referral });
 	}
 
 	fetchReferrals = async () => {
@@ -264,18 +266,23 @@ class ReferralsPage extends Component {
 					</React.Fragment>
 				)}
 				{this.state.selectedReferral && (
-					<Modal
-						title="Referral Details"
-						canCancel
-						canConfirm
-						onCancel={this.modalCancelHandler}
-						onConfirm={this.modalCancelHandler}
-						confirmText={"Confirm"}
-					>
-						<PatientDetails
-							patient={this.selectedReferral.patient}
-						/>
-					</Modal>
+					<React.Fragment>
+						<Backdrop />
+						<Modal
+							title="Referral Details"
+							canCancel
+							canConfirm
+							onCancel={this.modalCancelHandler}
+							onConfirm={this.modalCancelHandler}
+							confirmText={"Confirm"}
+						>
+							<PatientDetails
+								patient={this.state.selectedReferral.patient}
+							/>
+							<h2>Comments: {this.state.selectedReferral.comments}</h2>
+							<h2>Tooth Number: {this.state.selectedReferral.toothNumber}</h2>
+						</Modal>
+					</React.Fragment>
 				)}
 				<div className="events-control">
 					<button className="btn" onClick={this.startCreatePatientHandler}>Create Referral</button>
@@ -283,15 +290,16 @@ class ReferralsPage extends Component {
 				{this.state.isLoading ? (
 					<Spinner />
 				) : (
-					<ReferralList
-						referrals={this.state.referrals}
-						onDetail={this.showDetailHandler}
-					/>
-				)}
-				{this.state.isLoading ? (
-					<Spinner />
-				) : (
-					<ReferralStatistic referrals={this.state.referrals}/>
+					<React.Fragment>
+						<ReferralTable 
+							referrals={this.state.referrals}
+						/>
+						<ReferralList
+							referrals={this.state.referrals}
+							onDetail={this.showDetailHandler}
+						/>
+						<ReferralStatistic referrals={this.state.referrals} />
+					</React.Fragment>
 				)}
 			</React.Fragment>
 		);

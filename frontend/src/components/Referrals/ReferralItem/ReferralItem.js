@@ -14,7 +14,7 @@ class ReferralItem extends React.Component {
 					/>
 				</div>
 				<div>
-						(<button className="btn" onClick={this.props.onDetail.bind(this, this.props.eventId)}>View Details</button>)
+						(<button className="btn" onClick={this.props.onDetail.bind(this, referral)}>View Details</button>)
 				</div>
 			</li>
 		);
