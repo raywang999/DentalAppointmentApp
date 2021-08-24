@@ -38,6 +38,7 @@ class ReferralsPage extends Component {
 	}
 
 	componentDidMount() {
+		console.log("referral did mount()");
 		if (this.props.location && this.props.location.state) {
 			this.setState({ selectedPatient: this.props.location.state.selectedPatient });
 		}
@@ -49,6 +50,19 @@ class ReferralsPage extends Component {
 	componentWillUnmount() {
 		this.isActive = false;
 	}
+
+	sortReferrals = (filterKey, filterNonDecreasing) => {
+		if (!filterKey) {
+			filterKey = "createdAt";
+		}
+		this.state.referrals.sort((el1, el2) => {
+			el1 = el1[filterKey].toString();
+			el2 = el2[filterKey].toString();
+			var result = el1.localeCompare(el2);
+			if (!filterNonDecreasing) result *= -1;
+			return result;
+		});
+	};
 
 	setPaginationHandler = (page) => {
 		this.setState({ activePaginationPage: page });
@@ -107,7 +121,7 @@ class ReferralsPage extends Component {
 			const resData = await helpers.queryAPI(requestBody, this.context);
 			this.setState(prevState => {
 				const updatedReferrals = [...prevState.referrals];
-				updatedReferrals.push({
+				updatedReferrals.unshift({
 					...resData.data.createReferral,
 				});
 				return { referrals: updatedReferrals };
@@ -161,6 +175,7 @@ class ReferralsPage extends Component {
 		} catch (err) {
 			console.log(err);
 		}
+		this.sortReferrals();
 		this.setState({ isLoading: false });
 	}
 
@@ -301,6 +316,7 @@ class ReferralsPage extends Component {
 								this.state.activePaginationPage * this.maxDisplayedReferrals,
 							)}
 							onDetail={this.showDetailHandler}
+							onSetFilter={this.sortReferrals.bind(this)}
 						/>
 						<Pagination
 							totalItemCount={this.state.referrals.length}

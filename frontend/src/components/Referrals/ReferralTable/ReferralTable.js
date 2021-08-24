@@ -4,7 +4,7 @@ import React from 'react';
 class ReferralTable extends React.Component {
 	render() {
 		return (<React.Fragment>
-			<Table striped bordered hover responsive="xl">
+			<Table striped bordered hover responsive="xxl">
 				<thead>
 					<tr>
 						<th>First Name</th>

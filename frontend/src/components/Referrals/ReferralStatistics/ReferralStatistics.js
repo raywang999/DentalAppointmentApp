@@ -7,7 +7,6 @@ class ReferralStatistic extends React.Component {
 
 	render() {
 		const referrals = this.props.referrals;
-		console.log(referrals);
 		var users = {};
 		referrals.forEach(referral => {
 			const referee = referral.referee.email;
