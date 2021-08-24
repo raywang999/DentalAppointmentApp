@@ -7,10 +7,10 @@ import AuthContext from '../context/auth-context';
 import Spinner from '../components/Spinner/Spinner';
 import helpers from '../helpers/helpers';
 import PatientDetails from '../components/Patients/PatientDetails/PatientDetails';
-import ReferralList from '../components/Referrals/ReferralsList/ReferralsList';
 import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
 import ReferralStatistic from '../components/Referrals/ReferralStatistics/ReferralStatistics';
 import ReferralTable from '../components/Referrals/ReferralTable/ReferralTable';
+import Pagination from '../components/Pagination/Pagination';
 
 class ReferralsPage extends Component {
 	state = {
@@ -22,6 +22,7 @@ class ReferralsPage extends Component {
 		isLoading: false,
 		selectedPatient: null,
 		selectedReferral: null,
+		activePaginationPage: 1,
 	};
 
 	isActive = true;
@@ -33,6 +34,7 @@ class ReferralsPage extends Component {
 		this.refereeElRef = React.createRef();
 		this.toothNumberElRef = React.createRef();
 		this.commentsElRef = React.createRef();
+		this.maxDisplayedReferrals = 6;
 	}
 
 	componentDidMount() {
@@ -47,6 +49,10 @@ class ReferralsPage extends Component {
 	componentWillUnmount() {
 		this.isActive = false;
 	}
+
+	setPaginationHandler = (page) => {
+		this.setState({ activePaginationPage: page });
+	};
 
 	startCreatePatientHandler = () => {
 		this.setState({ creating: true });
@@ -113,11 +119,10 @@ class ReferralsPage extends Component {
 	};
 
 	modalCancelHandler = () => {
-		this.setState({ creating: false, selectedPatient: null, selectedReferral: null});
+		this.setState({ creating: false, selectedPatient: null, selectedReferral: null });
 	}
 
 	showDetailHandler = (referral) => {
-		console.log(referral);
 		this.setState({ selectedReferral: referral });
 	}
 
@@ -150,7 +155,6 @@ class ReferralsPage extends Component {
 		try {
 			const resData = await helpers.queryAPI(requestBody, this.context);
 			const referrals = resData.data.referrals;
-			console.log(referrals);
 			if (this.isActive) {
 				this.setState({ referrals: referrals });
 			}
@@ -291,12 +295,18 @@ class ReferralsPage extends Component {
 					<Spinner />
 				) : (
 					<React.Fragment>
-						<ReferralTable 
-							referrals={this.state.referrals}
-						/>
-						<ReferralList
-							referrals={this.state.referrals}
+						<ReferralTable
+							referrals={this.state.referrals.slice(
+								(this.state.activePaginationPage - 1) * this.maxDisplayedReferrals,
+								this.state.activePaginationPage * this.maxDisplayedReferrals,
+							)}
 							onDetail={this.showDetailHandler}
+						/>
+						<Pagination
+							totalItemCount={this.state.referrals.length}
+							itemsPerPage={this.maxDisplayedReferrals}
+							currentActivePage={this.state.activePaginationPage}
+							setPagination={this.setPaginationHandler.bind(this)}
 						/>
 						<ReferralStatistic referrals={this.state.referrals} />
 					</React.Fragment>

@@ -2,9 +2,9 @@ import Table from 'react-bootstrap/Table';
 import React from 'react';
 
 class ReferralTable extends React.Component {
-	render(){
+	render() {
 		return (<React.Fragment>
-			<Table striped bordered hover>
+			<Table striped bordered hover responsive="xl">
 				<thead>
 					<tr>
 						<th>First Name</th>
@@ -17,7 +17,9 @@ class ReferralTable extends React.Component {
 				</thead>
 				<tbody>
 					{this.props.referrals.map(referral => {
-						return (<tr>
+						return (<tr
+							onClick={this.props.onDetail.bind(this, referral)}
+						>
 							<td>{referral.patient.firstName}</td>
 							<td>{referral.patient.lastName}</td>
 							<td>{new Date(referral.createdAt).toDateString()}</td>

@@ -73,6 +73,9 @@ const referrals = async () => {
 		const patients = (await helper.fetchPatients()).data.patients;
 		const ref = (await createReferral(patients[0]._id, env.user2._id, Math.floor(Math.random() * 100), "My tooth hasa  cavity")).data.createReferral;
 		console.log(ref);
+		for (var i=0; i<100; i++){
+			await createReferral(patients[helper.randomInt(patients.length)]._id, env.user2._id, helper.randomInt(50), helper.generateRandomString(100,"a"));
+		}
 		console.log(await fetchReferrals());
 	} catch (err) {
 		throw err;

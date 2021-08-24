@@ -19,9 +19,9 @@
 }
 
 .form-actions button {
-	background: cyan;
+	background: lightgrey;
 	font: inherit;
-	border: 1px solid cyan;
+	border: 1px solid grey;
 	border-radius: 5px;
 	padding: 0.25rem 1rem;
 	margin-right: 1rem;
