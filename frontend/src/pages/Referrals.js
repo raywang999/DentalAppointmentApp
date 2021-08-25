@@ -11,6 +11,7 @@ import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
 import ReferralStatistic from '../components/Referrals/ReferralStatistics/ReferralStatistics';
 import ReferralTable from '../components/Referrals/ReferralTable/ReferralTable';
 import Pagination from '../components/Pagination/Pagination';
+const _get = require('lodash.get');
 
 class ReferralsPage extends Component {
 	state = {
@@ -28,6 +29,26 @@ class ReferralsPage extends Component {
 	isActive = true;
 	static contextType = AuthContext;
 
+	requiredReferralInformation = `
+		_id
+		toothNumber
+		patient {
+			firstName
+			lastName
+			dateOfBirth
+		}
+		comments
+		referrer {
+			email
+		}
+		referee{
+			email
+		}
+		createdAt
+		treatmentDate
+		consultationDate
+	`;
+
 	constructor(props) {
 		super(props);
 		this.patientElRef = React.createRef();
@@ -38,7 +59,6 @@ class ReferralsPage extends Component {
 	}
 
 	componentDidMount() {
-		console.log("referral did mount()");
 		if (this.props.location && this.props.location.state) {
 			this.setState({ selectedPatient: this.props.location.state.selectedPatient });
 		}
@@ -55,13 +75,18 @@ class ReferralsPage extends Component {
 		if (!filterKey) {
 			filterKey = "createdAt";
 		}
-		this.state.referrals.sort((el1, el2) => {
-			el1 = el1[filterKey].toString();
-			el2 = el2[filterKey].toString();
+		this.setState({referrals: this.state.referrals.sort((el1, el2) => {
+			const toString = (obj) => {
+				obj=_get(obj, filterKey);
+				if (obj) return obj.toString();
+				return "";
+			};
+			el1 = toString(el1);
+			el2 = toString(el2);
 			var result = el1.localeCompare(el2);
 			if (!filterNonDecreasing) result *= -1;
 			return result;
-		});
+		})});
 	};
 
 	setPaginationHandler = (page) => {
@@ -96,21 +121,7 @@ class ReferralsPage extends Component {
 			query: `
 				mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!, $comments: String){
 					createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber, comments: $comments){
-						_id
-						toothNumber
-						patient {
-							firstName
-							lastName
-							dateOfBirth
-						}
-						comments
-						referrer {
-							email
-						}
-						referee{
-							email
-						}
-						createdAt
+						${this.requiredReferralInformation}
 					}
 				}
 			`,
@@ -146,21 +157,7 @@ class ReferralsPage extends Component {
 			query: `
 				query {
 					referrals {
-						_id
-						toothNumber
-						patient {
-							firstName
-							lastName
-							dateOfBirth
-						}
-						referrer {
-							email
-						}
-						referee {
-							email
-						}
-						comments
-						createdAt
+						${this.requiredReferralInformation}
 					}
 				}
 			`
@@ -316,7 +313,7 @@ class ReferralsPage extends Component {
 								this.state.activePaginationPage * this.maxDisplayedReferrals,
 							)}
 							onDetail={this.showDetailHandler}
-							onSetFilter={this.sortReferrals.bind(this)}
+							sortReferrals={this.sortReferrals.bind(this)}
 						/>
 						<Pagination
 							totalItemCount={this.state.referrals.length}
