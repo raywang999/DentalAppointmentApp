@@ -20,6 +20,27 @@ module.exports = {
 			throw err;
 		}
 	},
+	updateUser: async (args, req) => {
+		try {
+			if (!req.isAuth) {
+				throw new Error('Unauthenticated!');
+			}
+			const userId = req.userId;
+			const user = await (User.findOne({_id: userId}));
+			if (!user) {
+				throw new Error('User does not exist!');
+			}
+			user.email = args.userInput.email;
+			user.password = args.userInput.password;
+			const result = await user.save();
+			return {
+				...result._doc,
+				password: null,
+			}
+		} catch (err) {
+			throw err;
+		}
+	},
 	login: async ({ email, password }) => {
 		const user = await User.findOne({ email: email });
 		if (!user) {
@@ -37,13 +58,11 @@ module.exports = {
 		);
 		return { userId: user.id, token: token, tokenExpiration: 1 };
 	},
-	users: async () => {
-		const users = await User.find();
-		return users.map(user => {
-			return {
-				...user._doc,
-				password: null
-			}
-		});
+	user: async () => {
+		const user = await User.findOne();
+		return {
+			...user._doc,
+			password: null
+		};
 	}
 };

@@ -7,7 +7,6 @@ import PatientsPage from './pages/Patients';
 import MainNavigation from './components/navigation/MainNavigation';
 import React from 'react';
 import AuthContext from './context/auth-context';
-import TestsPage from './pages/Tests';
 
 class App extends React.Component {
   state = {
@@ -40,13 +39,12 @@ class App extends React.Component {
             <MainNavigation />
             <main className="main-content">
               <Switch>
-                {this.state.token && <Redirect from="/" to="/patients" exact />}
-                {this.state.token && <Redirect from="/auth" to="/patients" exact />}
-                {/*<Route path="/test" component={TestsPage} />*/}
-                {!this.state.token && (<Route path="/auth" component={AuthPage} />)}
-                {this.state.token && (<Route path="/patients" component={PatientsPage} />)}
-                {this.state.token && (<Route path="/referrals" component={ReferralsPage} />)}
-                {!this.state.token && <Redirect to="/auth" exact />}
+                {/*this.state.token && <Redirect from="/" to="/patients" exact />}
+                {this.state.token && <Redirect from="/auth" to="/patients" exact />*/}
+                {this.state.token && <Route path="/patients" component={PatientsPage} />}
+                <Route path="/referrals" component={ReferralsPage} />
+                <Route path="/auth" component={AuthPage} />
+                <Redirect to="/" />
               </Switch>
             </main>
           </AuthContext.Provider>

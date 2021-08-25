@@ -56,12 +56,13 @@ input UserInput {
 type RootQuery {
 	patients: [Patient!]!
 	referrals: [Referral!]!
-	users: [User!]!
+	user: User
 	login(email: String!, password: String!): authData!
 }
 
 type RootMutation {
 	createUser(userInput: UserInput): User
+	updateUser(userInput: UserInput): User
 	createPatient(patientInput: PatientInput!): Patient
 	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!, comments: String): Referral!
 	cancelReferral(referralId: ID!): Referral!
