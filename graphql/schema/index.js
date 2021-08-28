@@ -1,6 +1,6 @@
-const { buildSchema } = require('graphql');
+const { gql } = require('apollo-server-core');
 
-module.exports = buildSchema(`
+module.exports = gql(`
 type Patient {
 	_id: ID!
 	firstName: String!
@@ -53,21 +53,17 @@ input UserInput {
 	password: String!
 }
 
-type RootQuery {
+type Query {
 	patients: [Patient!]!
 	referrals: [Referral!]!
 	users: [User!]!
 	login(email: String!, password: String!): authData!
 }
 
-type RootMutation {
+type Mutation {
 	createUser(userInput: UserInput): User
 	createPatient(patientInput: PatientInput!): Patient
 	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!, comments: String): Referral!
 	cancelReferral(referralId: ID!): Referral!
 }
-
-schema {
-	query: RootQuery
-	mutation: RootMutation
-}`);
+`);
