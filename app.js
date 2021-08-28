@@ -1,4 +1,3 @@
-const { fileURLToPath } = require('url');
 const makeDir = require('make-dir');
 const express = require('express');
 const http = require('http');
@@ -8,8 +7,8 @@ const { graphqlUploadExpress } = require('graphql-upload');
 const mongoose = require('mongoose');
 
 const UPLOAD_DIRECTORY_URL = require('./config/UPLOAD_DIRECTORY_URL.js');
-const typeDefs = require('./graphql/schema/index');
-const graphQlResolvers = require('./graphql/resolvers/index');
+const apolloTypeDefs = require('./graphql/schema/index');
+const apolloResolvers = require('./graphql/resolvers/index');
 const isAuth = require('./middleware/is-auth');
 //const schema = require('./schema/index.mjs');
 
@@ -38,14 +37,15 @@ async function startServer() {
 	app.use(isAuth);
 	const httpServer = new http.createServer(app);
 
-	/*app.use('/graphql', graphqlHTTP({
-		schema: graphQlSchema,
-		rootValue: graphQlResolvers,
-		graphiql: true
-	}));*/
-
 	const apolloServer = new ApolloServer({
-		typeDefs: typeDefs,
+		typeDefs: apolloTypeDefs,
+		resolvers: apolloResolvers,
+		context: ({req}) => {
+			return {
+				isAuth: req.isAuth,
+				userId: req.userId,
+			};
+		},
 		plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 	});
 
