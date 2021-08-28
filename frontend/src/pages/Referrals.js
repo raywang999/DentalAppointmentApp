@@ -321,7 +321,6 @@ class ReferralsPage extends Component {
 							currentActivePage={this.state.activePaginationPage}
 							setPagination={this.setPaginationHandler.bind(this)}
 						/>
-						<ReferralStatistic referrals={this.state.referrals} />
 					</React.Fragment>
 				)}
 			</React.Fragment>
