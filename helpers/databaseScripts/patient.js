@@ -6,20 +6,22 @@ const testPatient = {
 	lastName: "Blob",
 	dateOfBirth: new Date(-550, 10, 3).toISOString(),
 	gender: "Yes",
-	toothNumber: 36,
 	email: "N/a",
 	phoneNumber: null,
 };
 
+const genRandFromArr = (items) => {
+	return items[Math.floor(Math.random()*items.length)];
+};
+
 const generateRandomPatient = () => {
 	return {
-		firstName: helper.generateRandomString(10),
-		lastName: helper.generateRandomString(10),
+		firstName: genRandFromArr(['Joe','Bob','John']),
+		lastName: genRandFromArr(['Smith','Wang']),
 		dateOfBirth: helper.randomDate(new Date(1970, 0, 1), new Date(2007, 10, 3)).toISOString(),
-		gender: helper.generateRandomString(3),
-		toothNumber: Math.floor(Math.random() * 100),
-		email: `${helper.generateRandomString(5)}@test.com`,
-		phoneNumber: helper.generateRandomString(12),
+		gender: genRandFromArr(['Male','Female','Non-binary']),
+		email: `test@test.com`,
+		phoneNumber: `asdf1647${helper.generateRandomString(7)}`,
 	};
 };
 
@@ -36,7 +38,7 @@ const generateRandomPatients = async (count) => {
 };
 
 const customStringify = (patient) => {
-	res = "";
+	var res = "";
 	for (const [key, value] of Object.entries(patient)) {
 		res += `${key}: ${isNaN(value) ? `"${value}"` : value} `;
 	}
@@ -53,7 +55,6 @@ const createPatient = async (patient) => {
 				lastName
 				dateOfBirth
 				gender
-				toothNumber
 				email
 				phoneNumber
 			}

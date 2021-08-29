@@ -24,9 +24,10 @@ const features = {
 		return loginRes;
 	},
 
-	generateRandomString: (length) => {
+	generateRandomString: (length, characters) => {
 		var result = '';
-		var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		if (!characters)
+			characters = '1234567890';
 		var charactersLength = characters.length;
 		for (var i = 0; i < length; i++) {
 			result += characters.charAt(Math.floor(Math.random() *
@@ -37,6 +38,10 @@ const features = {
 
 	randomDate: (start, end) => {
 		return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+	},
+
+	randomInt: (end) => {
+		return Math.floor(Math.random()*end);
 	},
 
 	queryAPI: async (queryString, variables) => {
@@ -72,7 +77,6 @@ const features = {
 				_id
 				firstName
 				dateOfBirth
-				toothNumber
 			}
 		}`;
 		try {

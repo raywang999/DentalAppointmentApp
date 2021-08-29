@@ -14,6 +14,4 @@ const reset = async () => {
 	console.log("Database Cleared!");
 }
 
-reset();
-
-module.exports = reset
+module.exports = reset;
