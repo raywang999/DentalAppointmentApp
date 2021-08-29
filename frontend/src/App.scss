@@ -1,0 +1,11 @@
+$theme-colors: (
+	"info": tomato,
+    "danger": teal
+);
+
+@import "~bootstrap/scss/bootstrap";
+
+.main-content{
+  margin: 4rem 2.5rem;
+}
+	

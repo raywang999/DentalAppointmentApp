@@ -2,6 +2,7 @@
 	"env":{
 		"MONGO_USER": "admin",
 		"MONGO_PASSWORD": "llysc90-",
-		"MONGO_DB": "events-react-dev"
+		"MONGO_DB": "DA-prototype",
+		"PORT": 8000
 	}
 }

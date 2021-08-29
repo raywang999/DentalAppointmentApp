@@ -1,35 +1,36 @@
-const { buildSchema } = require('graphql');
+const { gql } = require('apollo-server-core');
 
-module.exports = buildSchema(`
-type Booking{
+module.exports = gql(`
+type Patient {
 	_id: ID!
-	event: Event!
-	user: User!
+	firstName: String!
+	lastName: String!
+	dateOfBirth: String!
+	gender: String! 
+	phoneNumber: String
+	email: String
+	referrer: User
+	referee: User
+}
+
+type Referral{
+	_id: ID!
+	patient: Patient!
+	toothNumber: Int!
+	comments: String
+	referrer: User!
+	referee: User!
 	createdAt: String!
 	updatedAt: String!
-}
-
-type Event {
-	_id: ID!
-	title: String!
-	description: String!
-	price: Float!
-	date: String!
-	creator: User!
-}
-
-input EventInput {
-	title: String!
-	description: String!
-	price: Float!
-	date: String!
+	consultationDate: String
+	treatmentDate: String
+	finalReportSent: Boolean!
 }
 
 type User {
 	_id: ID!
 	email: String!
 	password: String
-	createdEvents: [Event!]
 }
 
 type authData {
@@ -38,25 +39,31 @@ type authData {
 	tokenExpiration: Int!
 }
 
+input PatientInput {
+	firstName: String!
+	lastName: String!
+	dateOfBirth: String!
+	gender: String! 
+	email: String
+	phoneNumber: String
+}
+
 input UserInput {
 	email: String!
 	password: String!
 }
 
-type RootQuery {
-	events: [Event!]!
-	bookings: [Booking!]!
+type Query {
+	patients: [Patient!]!
+	referrals: [Referral!]!
+	users: [User!]!
 	login(email: String!, password: String!): authData!
 }
 
-type RootMutation {
-	createEvent(eventInput: EventInput): Event 
+type Mutation {
 	createUser(userInput: UserInput): User
-	bookEvent(eventId: ID!): Booking!
-	cancelBooking(bookingId: ID!): Event!
+	createPatient(patientInput: PatientInput!): Patient
+	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!, comments: String): Referral!
+	cancelReferral(referralId: ID!): Referral!
 }
-
-schema {
-	query: RootQuery
-	mutation: RootMutation
-}`);
+`);

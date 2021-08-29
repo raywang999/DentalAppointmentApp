@@ -1,25 +1,27 @@
-import './App.css';
+import './App.scss';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 
 import AuthPage from './pages/Auth';
-import BookingsPage from './pages/Bookings';
-import EventsPage from './pages/Events';
+import ReferralsPage from './pages/Referrals';
+import PatientsPage from './pages/Patients';
 import MainNavigation from './components/navigation/MainNavigation';
 import React from 'react';
 import AuthContext from './context/auth-context';
+import TestsPage from './pages/Tests';
 
 class App extends React.Component {
   state = {
     token: null,
-    userId: null
+    userId: null,
+    email: null,
   }
 
-  login = (token, userId, tokenExpiration) => {
-    this.setState({ token: token, userId: userId });
+  login = (token, userId, tokenExpiration, email) => {
+    this.setState({ token: token, userId: userId, email: email});
   }
 
   logout = () => {
-    this.setState({ token: null, userId: null });
+    this.setState({ token: null, userId: null, email: null });
   }
 
   render() {
@@ -30,6 +32,7 @@ class App extends React.Component {
             value={{
               token: this.state.token,
               userId: this.state.userId,
+              email: this.state.email,
               login: this.login,
               logout: this.logout
             }}
@@ -37,11 +40,12 @@ class App extends React.Component {
             <MainNavigation />
             <main className="main-content">
               <Switch>
-                {this.state.token && <Redirect from="/" to="/events" exact />}
-                {this.state.token && <Redirect from="/auth" to="/events" exact />}
-                <Route path="/events" component={EventsPage} />
+                {this.state.token && <Redirect from="/" to="/patients" exact />}
+                {this.state.token && <Redirect from="/auth" to="/patients" exact />}
+                {/*<Route path="/test" component={TestsPage} />*/}
                 {!this.state.token && (<Route path="/auth" component={AuthPage} />)}
-                {this.state.token && (<Route path="/bookings" component={BookingsPage} />)}
+                {this.state.token && (<Route path="/patients" component={PatientsPage} />)}
+                {this.state.token && (<Route path="/referrals" component={ReferralsPage} />)}
                 {!this.state.token && <Redirect to="/auth" exact />}
               </Switch>
             </main>
