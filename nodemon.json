@@ -2,7 +2,6 @@
 	"env":{
 		"MONGO_USER": "admin",
 		"MONGO_PASSWORD": "llysc90-",
-		"MONGO_HOST": "cluster0.fgxqj.mongodb.net",
 		"MONGO_DB": "events-react-dev"
 	}
 }
