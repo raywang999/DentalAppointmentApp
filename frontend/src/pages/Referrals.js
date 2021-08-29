@@ -14,10 +14,10 @@ import ReferralTable from '../components/Referrals/ReferralTable/ReferralTable';
 import Pagination from '../components/Pagination/Pagination';
 
 export default async (props) => {
+	var isActive = true;
 	const [creating, setCreating] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const fetchReferrals = async () => {
-		setIsLoading(true);
 		const requestBody = {
 			query: `
 				query {
@@ -31,17 +31,14 @@ export default async (props) => {
 		try {
 			const resData = await helpers.queryAPI(requestBody, context);
 			if (isActive) {
-				sortReferrals();
 				return resData.data.referrals;
 			}
 		} catch (err) {
 			console.log(err);
 		}
-		setIsLoading(false);
 	}
 
 	const fetchPatients = async () => {
-		setIsLoading(true);
 		const requestBody = {
 			query: `
 				query {
@@ -60,7 +57,6 @@ export default async (props) => {
 
 		try {
 			const resData = await helpers.queryAPI(requestBody, context);
-			setIsLoading(false);
 			return resData.data.patients;
 		} catch (err) {
 			console.log(err);
@@ -68,7 +64,6 @@ export default async (props) => {
 	}
 
 	const fetchUsers = async () => {
-		setIsLoading(true);
 		const requestBody = {
 			query: `
 				query {
@@ -82,7 +77,6 @@ export default async (props) => {
 
 		try {
 			const resData = await helpers.queryAPI(requestBody, context);
-			setIsLoading(false);
 			if (isActive) {
 				return resData.data.users;
 			}
@@ -92,14 +86,13 @@ export default async (props) => {
 	}
 
 	const [referrals, setReferrals] = useState(await fetchReferrals());
-	const [patients, setPatients] = useState([await fetchPatients()]);
+	const patients = await fetchPatients();
 	//const [events, setEvents] = useState([]);
-	const [users, setUsers] = useState(await fetchUsers());
+	const users = await fetchUsers();
 	const [selectedPatient, setSelectedPatient] = useState(null);
 	const [selectedReferral, setSelectedReferral] = useState(null);
 	const [activePaginationPage, setActivePaginationPage] = useState(1);
 
-	var isActive = true;
 	const context = useContext(AuthContext);
 
 	const requiredReferralInformation = `
