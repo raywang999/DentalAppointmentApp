@@ -1,12 +1,31 @@
 const helper = require('./helper');
 const env = require('./env');
 
-const createReferral = async (patientId, refereeId) => {
+const createReferral = async (patientId, refereeId, toothNumber, comments) => {
 	try {
 		const requestBody = `
 			mutation {
-				createReferral(patientId: "${patientId}" refereeId: "${refereeId}") {
+				createReferral(patientId: "${patientId}" refereeId: "${refereeId}" toothNumber: ${toothNumber} comments:"${comments}") {
 					_id
+					patient {
+						_id
+						firstName
+						lastName
+						dateOfBirth
+						gender
+						phoneNumber
+						email
+						referrer {
+							_id
+							email
+							password
+						}
+						referee {
+							_id
+							email
+							password
+						}
+					}
 					referrer {
 						_id
 						email
@@ -15,6 +34,8 @@ const createReferral = async (patientId, refereeId) => {
 						_id
 						email
 					}
+					comments
+					toothNumber
 					createdAt
 					updatedAt
 					consultationDate
@@ -23,7 +44,23 @@ const createReferral = async (patientId, refereeId) => {
 				}
 			}
 		`;
-		console.log(requestBody);
+		return await helper.queryAPI(requestBody);
+	} catch (err) {
+		throw err;
+	}
+};
+
+const fetchReferrals = async () => {
+	const requestBody = `query {
+		referrals {
+			_id
+			patient {
+				firstName
+				dateOfBirth
+			}
+		}
+	}`;
+	try {
 		return await helper.queryAPI(requestBody);
 	} catch (err) {
 		throw err;
@@ -34,10 +71,13 @@ const referrals = async () => {
 	try {
 		console.log(await helper.login(env.user1));
 		const patients = (await helper.fetchPatients()).data.patients;
-		const ref = (await createReferral(patients[0]._id, env.user2._id)).data.createReferral;
-		console.log(ref.patient);
-		console.log(ref.referrer);
-		console.log(ref.referee);
+		const ref = (await createReferral(patients[0]._id, env.user2._id, Math.floor(Math.random() * 100), "My tooth hasa  cavity")).data.createReferral;
+		console.log(ref);
+		console.log("Generating Referrals...");
+		for (var i=0; i<100; i++){
+			await createReferral(patients[helper.randomInt(patients.length)]._id, env.user2._id, helper.randomInt(50), helper.generateRandomString(100,"a"));
+		}
+		console.log(await fetchReferrals());
 	} catch (err) {
 		throw err;
 	}
