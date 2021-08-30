@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
+import React, { useState, useContext } from 'react';
 
 import './Auth.css';
 import authContext from '../context/auth-context';
 import helpers from '../helpers/helpers';
-import { useState, useContext, useEffect } from 'react';
 
-export default (props) => {
+export default () => {
 	const [isLogin, setIsLogin] = useState(true);
 	const emailEl = React.createRef();
 	const passwordEl = React.createRef();

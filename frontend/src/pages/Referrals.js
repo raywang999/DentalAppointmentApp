@@ -13,10 +13,45 @@ import ReferralStatistic from '../components/Referrals/ReferralStatistics/Referr
 import ReferralTable from '../components/Referrals/ReferralTable/ReferralTable';
 import Pagination from '../components/Pagination/Pagination';
 
-export default async (props) => {
+const requiredReferralInformation = `
+	_id
+	toothNumber
+	patient {
+		firstName
+		lastName
+		dateOfBirth
+	}
+	comments
+	referrer {
+		email
+	}
+	referee{
+		email
+	}
+	createdAt
+	treatmentDate
+	consultationDate
+`;
+
+
+export default (props) => {
 	var isActive = true;
 	const [creating, setCreating] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [referrals, setReferrals] = useState([]);
+	const [patients, setPatients] = useState([]);
+	const [users, setUsers] = useState([]);
+	const [selectedPatient, setSelectedPatient] = useState(null);
+	const [selectedReferral, setSelectedReferral] = useState(null);
+	const [activePaginationPage, setActivePaginationPage] = useState(1);
+	const context = useContext(AuthContext);
+
+	const patientElRef = React.createRef();
+	const refereeElRef = React.createRef();
+	const toothNumberElRef = React.createRef();
+	const commentsElRef = React.createRef();
+	const maxDisplayedReferrals = 6;
+
 	const fetchReferrals = async () => {
 		const requestBody = {
 			query: `
@@ -85,49 +120,14 @@ export default async (props) => {
 		}
 	}
 
-	const [referrals, setReferrals] = useState(await fetchReferrals());
-	const patients = await fetchPatients();
-	//const [events, setEvents] = useState([]);
-	const users = await fetchUsers();
-	const [selectedPatient, setSelectedPatient] = useState(null);
-	const [selectedReferral, setSelectedReferral] = useState(null);
-	const [activePaginationPage, setActivePaginationPage] = useState(1);
-
-	const context = useContext(AuthContext);
-
-	const requiredReferralInformation = `
-		_id
-		toothNumber
-		patient {
-			firstName
-			lastName
-			dateOfBirth
+	useEffect(async () => {
+		setReferrals(await fetchReferrals());
+		setUsers(await fetchUsers());
+		setPatients(await fetchPatients());
+		if (props.location && props.location.state) {
+			setSelectedPatient(props.location.state.selectedPatient);
 		}
-		comments
-		referrer {
-			email
-		}
-		referee{
-			email
-		}
-		createdAt
-		treatmentDate
-		consultationDate
-	`;
-
-	const patientElRef = React.createRef();
-	const refereeElRef = React.createRef();
-	const toothNumberElRef = React.createRef();
-	const commentsElRef = React.createRef();
-	const maxDisplayedReferrals = 6;
-
-	if (props.location && props.location.state) {
-		setSelectedPatient(props.location.state.selectedPatient);
-	}
-
-	useEffect(() => {
-		return function cleanup() { isActive = false };
-	});
+	},[]);
 
 	const sortReferrals = (filterKey, filterNonDecreasing) => {
 		if (!filterKey) {
@@ -167,7 +167,6 @@ export default async (props) => {
 		}
 		const patientId = selectedPatient._id;
 
-		setIsLoading(true);
 		modalCancelHandler();
 
 		const formData = {
@@ -196,7 +195,6 @@ export default async (props) => {
 		} catch (err) {
 			console.log(err);
 		}
-		setIsLoading(false);
 	};
 
 	const modalCancelHandler = () => {
