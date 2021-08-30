@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { gql, useMutation } from '@apollo/client';
 import _get from 'lodash.get';
 
 import Modal from '../components/modal/Modal';
@@ -31,8 +32,18 @@ const requiredReferralInformation = `
 	createdAt
 	treatmentDate
 	consultationDate
+	attachments{
+		filename
+	}
 `;
 
+const CREATE_REFERRAL_MUTATION = gql(`
+	mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!, $comments: String, $attachments: [Upload!]){
+		createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber, comments: $comments, attachments: $attachments){
+			${requiredReferralInformation}
+		}
+	}
+`);
 
 export default (props) => {
 	var isActive = true;
@@ -45,11 +56,13 @@ export default (props) => {
 	const [selectedReferral, setSelectedReferral] = useState(null);
 	const [activePaginationPage, setActivePaginationPage] = useState(1);
 	const context = useContext(AuthContext);
+	const [createReferral] = useMutation(CREATE_REFERRAL_MUTATION);
 
 	const patientElRef = React.createRef();
 	const refereeElRef = React.createRef();
 	const toothNumberElRef = React.createRef();
 	const commentsElRef = React.createRef();
+	const attachmentsElRef = React.createRef();
 	const maxDisplayedReferrals = 6;
 
 	const fetchReferrals = async () => {
@@ -127,7 +140,7 @@ export default (props) => {
 		if (props.location && props.location.state) {
 			setSelectedPatient(props.location.state.selectedPatient);
 		}
-	},[]);
+	}, []);
 
 	const sortReferrals = (filterKey, filterNonDecreasing) => {
 		if (!filterKey) {
@@ -160,11 +173,13 @@ export default (props) => {
 	const modalConfirmHandler = async () => {
 		const refereeId = refereeElRef.current.value;
 		const toothNumber = toothNumberElRef.current.value;
-		const comments = commentsElRef.current.value;
-		if (!selectedPatient || !refereeId || !toothNumber || !comments) {
+		const attachments = attachmentsElRef.current.files;
+		var comments = commentsElRef.current.value;
+		if (!selectedPatient || !refereeId || !toothNumber) {
 			alert("Incomplete Data!");
 			return;
 		}
+		if (!comments) comments = null;
 		const patientId = selectedPatient._id;
 
 		modalCancelHandler();
@@ -174,24 +189,16 @@ export default (props) => {
 			patientId: patientId,
 			comments: comments,
 			toothNumber: +toothNumber,
+			attachments: attachments,
 		};
 
-		const requestBody = {
-			query: `
-				mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!, $comments: String){
-					createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber, comments: $comments){
-						${requiredReferralInformation}
-					}
-				}
-			`,
-			variables: formData,
-		};
 
 		try {
-			const resData = await helpers.queryAPI(requestBody, context);
-			setReferrals(referrals.unshift({
-				...resData.data.createReferral,
-			}));
+			const resData = await createReferral({
+			variables: formData,
+		});
+			const newReferrals = [resData.data.createReferral, ...referrals];
+			setReferrals(newReferrals);
 		} catch (err) {
 			console.log(err);
 		}
@@ -243,6 +250,10 @@ export default (props) => {
 							<div className="form-control">
 								<label htmlFor="comments">Comments</label>
 								<textarea id="comments" ref={commentsElRef}></textarea>
+							</div>
+							<div className="form-control">
+								<label htmlFor="attachments">Attachments</label>
+								<input type="file" multiple id="attachments" ref={attachmentsElRef}></input>
 							</div>
 							<div className="form-control">
 								<label htmlFor="referee">Doctor</label>

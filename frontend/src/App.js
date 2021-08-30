@@ -1,6 +1,7 @@
 import './App.scss';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useApolloClient } from '@apollo/client';
 
 import AuthPage from './pages/Auth';
 import ReferralsPage from './pages/Referrals';
@@ -13,6 +14,7 @@ export default () => {
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState(null);
+  const client = useApolloClient();
 
   const login = (token, userId, tokenExpiration, email) => {
     setToken(token); setUserId(userId); setEmail(email);
@@ -20,6 +22,7 @@ export default () => {
 
   const logout = () => {
     setToken(null); setUserId(null); setEmail(null);
+    client.clearStore();
   }
 
   return (
@@ -39,7 +42,7 @@ export default () => {
             <Switch>
               {token && <Redirect from="/" to="/patients" exact />}
               {token && <Redirect from="/auth" to="/patients" exact />}
-              {/*<Route path="/test" component={TestsPage} />*/}
+              {<Route path="/test" component={TestsPage} />}
               {!token && (<Route path="/auth" component={AuthPage} />)}
               {token && (<Route path="/patients" component={PatientsPage} />)}
               {token && (<Route path="/referrals" component={ReferralsPage} />)}

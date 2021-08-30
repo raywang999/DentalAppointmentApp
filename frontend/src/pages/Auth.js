@@ -3,6 +3,7 @@ import React, { useState, useContext } from 'react';
 import './Auth.css';
 import authContext from '../context/auth-context';
 import helpers from '../helpers/helpers';
+import { useApolloClient } from '@apollo/client';
 
 export default () => {
 	const [isLogin, setIsLogin] = useState(true);
@@ -68,6 +69,7 @@ export default () => {
 					resData.data.login.tokenExpiration,
 					email,
 				);
+				sessionStorage.setItem('token', resData.data.login.token);
 			}
 		} catch (err) {
 			console.log(err);
