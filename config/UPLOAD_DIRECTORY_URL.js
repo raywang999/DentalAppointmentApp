@@ -1,1 +1,1 @@
-module.exports = '../uploads/';
+module.exports = require('path').join(__dirname, '../uploads/');

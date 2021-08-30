@@ -20,7 +20,11 @@ const authenticate = async () => {
 	var resData = await helper.createUser(env.user1);
 	console.log(resData);
 	env.user1._id = resData.data.createUser._id;
-	console.log(await helper.createUser(env.user1));
+	try {
+		await helper.createUser(env.user1); //should fail
+	} catch (err){
+		console.log(err);
+	}
 	resData = await helper.createUser(env.user2);
 	console.log(resData);
 	console.log(await helper.createUser(env.qian));

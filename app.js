@@ -15,11 +15,12 @@ const isAuth = require('./middleware/is-auth');
 /**
  * Starts the API server.
  */
-// Ensure the upload directory exists.
 async function startServer() {
+	// Ensure the upload directory exists.
 	await makeDir(UPLOAD_DIRECTORY_URL);
 
-	const app = new express();
+	const app = new express(); //creates express app
+	//Converts incoming files into javascript 
 	app.use(graphqlUploadExpress({
 		maxFileSize: 10000000, // 10 MB
 		maxFiles: 20,
