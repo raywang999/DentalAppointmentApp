@@ -52,7 +52,7 @@ const features = {
 		//console.log(JSON.stringify(requestBody));
 
 		try {
-			const res = await fetch('http://192.168.56.1:8000/graphql', {
+			const res = await fetch(`http://localhost:${process.env.PORT}/graphql`, {
 				method: 'POST',
 				body: JSON.stringify(requestBody),
 				headers: {

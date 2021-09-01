@@ -3,17 +3,17 @@ const env = require('./env');
 
 env.user1 = {
 	email: "user1@test.com",
-	password: "llysc90-",
+	password: "test",
 };
 
 env.user2 = {
 	email: "user2@test.com",
-	password: "llysc90-",
+	password: "test",
 };
 
 env.qian = {
 	email: "qian@gmail.com",
-	password: "llysc90-",
+	password: "test",
 };
 
 const authenticate = async () => {
@@ -30,6 +30,9 @@ const authenticate = async () => {
 	console.log(await helper.createUser(env.qian));
 	env.user2._id = resData.data.createUser._id;
 	console.log(await helper.login(env.user1));
+	return {
+		createdUsers: [env.qian, env.user1, env.user2],
+	};
 };
 
 module.exports = authenticate;
