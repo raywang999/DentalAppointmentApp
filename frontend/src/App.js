@@ -8,7 +8,6 @@ import ReferralsPage from './pages/Referrals';
 import PatientsPage from './pages/Patients';
 import MainNavigation from './components/navigation/MainNavigation';
 import AuthContext from './context/auth-context';
-import TestsPage from './pages/Tests';
 
 export default () => {
   const [token, setToken] = useState(null);
@@ -42,7 +41,6 @@ export default () => {
             <Switch>
               {token && <Redirect from="/" to="/patients" exact />}
               {token && <Redirect from="/auth" to="/patients" exact />}
-              {<Route path="/test" component={TestsPage} />}
               {!token && (<Route path="/auth" component={AuthPage} />)}
               {token && (<Route path="/patients" component={PatientsPage} />)}
               {token && (<Route path="/referrals" component={ReferralsPage} />)}

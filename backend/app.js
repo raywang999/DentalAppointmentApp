@@ -41,7 +41,7 @@ async function startServer() {
 	const apolloServer = new ApolloServer({
 		typeDefs: apolloTypeDefs,
 		resolvers: apolloResolvers,
-		context: ({req}) => {
+		context: ({ req }) => {
 			return {
 				isAuth: req.isAuth,
 				userId: req.userId,
@@ -61,7 +61,7 @@ async function startServer() {
 
 	mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD
 		}@cluster0.xvemn.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`
-	).then(() => { app.listen(8000); }).catch(err => {
+	).then(() => { app.listen(process.env.PORT); }).catch(err => {
 		console.log(err);
 	});
 }
