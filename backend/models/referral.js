@@ -2,6 +2,21 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
+const FileSchema = new Schema({
+	filename: {
+		type: String,
+		required: true,
+	},
+	encoding: {
+		type: String,
+		required: true,
+	},
+	mimetype: {
+		type: String,
+		required: true,
+	},
+});
+
 const referralSchema = new Schema({
 	patient: {
 		type: Schema.Types.ObjectId,
@@ -32,7 +47,14 @@ const referralSchema = new Schema({
 		type: Boolean,
 		required: true,
 	},
-},{ timestamps: true }
+	attachments: {
+		type: [{
+			type: FileSchema,
+			required: true,
+		}],
+		required: true,
+	},
+}, { timestamps: true }
 );
 
 module.exports = mongoose.model('Referral', referralSchema);

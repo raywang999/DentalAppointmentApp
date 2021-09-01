@@ -1,6 +1,7 @@
 const Referral = require('../../models/referral');
 const Patient = require('../../models/patient');
 const { transformReferral } = require('./merge');
+const { storeMultipleUploads } = require('../../helpers/storeUpload');
 
 module.exports = {
 	Query: {
@@ -33,6 +34,7 @@ module.exports = {
 				consultationDate: null,
 				treatmentDate: null,
 				finalReportSent: false,
+				attachments: await storeMultipleUploads(args.attachments),
 			});
 			try {
 				await referral.save();

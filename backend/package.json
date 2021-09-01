@@ -20,7 +20,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.1.0",
     "mongoose": "^5.13.5",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "short-id": "^0.1.0-1",
+    "shortid": "^2.2.16"
   },
   "devDependencies": {
     "nodemon": "^2.0.12"

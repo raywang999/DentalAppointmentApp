@@ -61,11 +61,12 @@ const features = {
 					'Origin': 'http://localhost:3000'
 				}
 			});
-			if (res.status !== 200 && res.status !== 201) {
-				console.log(await res.json());
+			const resJson = await res.json();
+			if (res.status !== 200 && res.status !== 201 || resJson.errors) {
+				console.log(resJson);
 				throw new Error('queryAPI Failed!');
 			}
-			return await res.json();
+			return resJson;
 		} catch (err) {
 			throw err;
 		};

@@ -1,32 +1,24 @@
-import React, { Component } from 'react';
+import React, { useState, useContext } from 'react';
 
 import './Auth.css';
 import authContext from '../context/auth-context';
 import helpers from '../helpers/helpers';
+import { useApolloClient } from '@apollo/client';
 
-class AuthPage extends Component {
-	state = {
-		isLogin: true
-	}
+export default () => {
+	const [isLogin, setIsLogin] = useState(true);
+	const emailEl = React.createRef();
+	const passwordEl = React.createRef();
+	const context = useContext(authContext);
 
-	static contextType = authContext;
-
-	constructor(props) {
-		super(props);
-		this.emailEl = React.createRef();
-		this.passwordEl = React.createRef();
-	}
-
-	switchModeHandler = () => {
-		this.setState(prevState => {
-			return { isLogin: !prevState.isLogin };
-		});
+	const switchModeHandler = () => {
+		setIsLogin(!isLogin);
 	};
 
-	submitHandler = async (event) => {
+	const submitHandler = async (event) => {
 		event.preventDefault();
-		const email = this.emailEl.current.value;
-		const password = this.passwordEl.current.value;
+		const email = emailEl.current.value;
+		const password = passwordEl.current.value;
 
 		if (email.trim().length === 0 || password.trim().length === 0) {
 			return;
@@ -48,7 +40,7 @@ class AuthPage extends Component {
 			}
 		};
 
-		if (!this.state.isLogin) {
+		if (!isLogin) {
 			requestBody = {
 				query: `
 				mutation CreateUser($email: String!, $password: String!) {
@@ -65,40 +57,37 @@ class AuthPage extends Component {
 		}
 
 		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			if (!this.state.isLogin){
-				this.setState({isLogin: true});
-				return await this.submitHandler(event);
+			const resData = await helpers.queryAPI(requestBody, context);
+			if (!isLogin) {
+				setIsLogin(true);
+				return await submitHandler(event);
 			}
 			if (resData.data.login.token) {
-				this.context.login(
+				context.login(
 					resData.data.login.token,
 					resData.data.login.userId,
 					resData.data.login.tokenExpiration,
 					email,
 				);
+				sessionStorage.setItem('token', resData.data.login.token);
 			}
 		} catch (err) {
 			console.log(err);
 		}
 	};
 
-	render() {
-		return <form className="auth-form" onSubmit={this.submitHandler}>
-			<div className="form-control">
-				<label htmlFor="email">E-mail</label>
-				<input type="email" id="email" ref={this.emailEl} />
-			</div>
-			<div className="form-control">
-				<label htmlFor="password">Password</label>
-				<input type="password" id="password" ref={this.passwordEl} />
-			</div>
-			<div className="form-actions">
-				<button type="submit">Submit</button>
-				<button type="button" onClick={this.switchModeHandler}>Switch to {this.state.isLogin ? 'Signup' : 'Login'}</button>
-			</div>
-		</form>;
-	}
+	return (<form className="auth-form" onSubmit={submitHandler}>
+		<div className="form-control">
+			<label htmlFor="email">E-mail</label>
+			<input type="email" id="email" ref={emailEl} />
+		</div>
+		<div className="form-control">
+			<label htmlFor="password">Password</label>
+			<input type="password" id="password" ref={passwordEl} />
+		</div>
+		<div className="form-actions">
+			<button type="submit">Submit</button>
+			<button type="button" onClick={switchModeHandler}>Switch to {isLogin ? 'Signup' : 'Login'}</button>
+		</div>
+	</form>);
 }
-
-export default AuthPage;
