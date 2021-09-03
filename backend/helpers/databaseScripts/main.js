@@ -24,18 +24,23 @@ const main = async () => {
 	try {
 		await reset();
 		console.log('Running tests...');
+		var testResults = [];
 		for (const test of tests){
 			if (!test) continue;
 			console.log(`---Testing '${test.name}'---`);
-			await test.exec();
+			testResults.push(await test.exec());
 		};
+		return testResults;
 	} catch (err) {
 		throw err;
 	}
 };
 
-main().then(() => {
+main().then((results) => {
 	console.log("Success!");
+	results.forEach((result) => {
+		console.log(result);
+	});
 }).catch(err => {
 	console.log(`!--Failed--!`);
 	console.log(err);

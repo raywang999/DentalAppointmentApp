@@ -1,0 +1,5 @@
+mutation {
+  createPatient (patientInput:{email:\"asdf\" firstName:\"jeff\",lastName:\"Joe\",gender:\"Male\",dateOfBirth:\"2021-08-11T00:30:04.391Z\",toothNumber: 31}){
+    _id
+  }
+}

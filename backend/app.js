@@ -15,11 +15,12 @@ const isAuth = require('./middleware/is-auth');
 /**
  * Starts the API server.
  */
-// Ensure the upload directory exists.
 async function startServer() {
+	// Ensure the upload directory exists.
 	await makeDir(UPLOAD_DIRECTORY_URL);
 
-	const app = new express();
+	const app = new express(); //creates express app
+	//Converts incoming files into javascript 
 	app.use(graphqlUploadExpress({
 		maxFileSize: 10000000, // 10 MB
 		maxFiles: 20,
@@ -40,7 +41,7 @@ async function startServer() {
 	const apolloServer = new ApolloServer({
 		typeDefs: apolloTypeDefs,
 		resolvers: apolloResolvers,
-		context: ({req}) => {
+		context: ({ req }) => {
 			return {
 				isAuth: req.isAuth,
 				userId: req.userId,
@@ -59,8 +60,8 @@ async function startServer() {
 	console.log(`🚀 Server ready at http://localhost:${process.env.PORT}/${apolloServer.graphqlPath}`);
 
 	mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD
-		}@cluster0.xvemn.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`
-	).then(() => { app.listen(8000); }).catch(err => {
+		}@${process.env.MONGO_CLUSTER}.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`
+	).then(() => { app.listen(process.env.PORT); }).catch(err => {
 		console.log(err);
 	});
 }

@@ -52,7 +52,7 @@ const features = {
 		//console.log(JSON.stringify(requestBody));
 
 		try {
-			const res = await fetch('http://192.168.56.1:8000/graphql', {
+			const res = await fetch(`http://localhost:${process.env.PORT}/graphql`, {
 				method: 'POST',
 				body: JSON.stringify(requestBody),
 				headers: {
@@ -61,11 +61,12 @@ const features = {
 					'Origin': 'http://localhost:3000'
 				}
 			});
-			if (res.status !== 200 && res.status !== 201) {
-				console.log(await res.json());
+			const resJson = await res.json();
+			if (res.status !== 200 && res.status !== 201 || resJson.errors) {
+				console.log(resJson);
 				throw new Error('queryAPI Failed!');
 			}
-			return await res.json();
+			return resJson;
 		} catch (err) {
 			throw err;
 		};

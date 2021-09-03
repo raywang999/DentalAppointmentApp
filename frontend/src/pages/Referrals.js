@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { gql, useMutation } from '@apollo/client';
+import _get from 'lodash.get';
 
 import Modal from '../components/modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
@@ -11,173 +13,80 @@ import PatientSearch from '../components/Patients/PatientSearch/PatientSearch';
 import ReferralStatistic from '../components/Referrals/ReferralStatistics/ReferralStatistics';
 import ReferralTable from '../components/Referrals/ReferralTable/ReferralTable';
 import Pagination from '../components/Pagination/Pagination';
-const _get = require('lodash.get');
 
-class ReferralsPage extends Component {
-	state = {
-		creating: false,
-		referrals: [],
-		patients: [],
-		events: [],
-		users: [],
-		isLoading: false,
-		selectedPatient: null,
-		selectedReferral: null,
-		activePaginationPage: 1,
-	};
-
-	isActive = true;
-	static contextType = AuthContext;
-
-	requiredReferralInformation = `
-		_id
-		toothNumber
-		patient {
-			firstName
-			lastName
-			dateOfBirth
-		}
-		comments
-		referrer {
-			email
-		}
-		referee{
-			email
-		}
-		createdAt
-		treatmentDate
-		consultationDate
-	`;
-
-	constructor(props) {
-		super(props);
-		this.patientElRef = React.createRef();
-		this.refereeElRef = React.createRef();
-		this.toothNumberElRef = React.createRef();
-		this.commentsElRef = React.createRef();
-		this.maxDisplayedReferrals = 6;
+const requiredReferralInformation = `
+	_id
+	toothNumber
+	patient {
+		firstName
+		lastName
+		dateOfBirth
 	}
-
-	componentDidMount() {
-		if (this.props.location && this.props.location.state) {
-			this.setState({ selectedPatient: this.props.location.state.selectedPatient });
-		}
-		this.fetchUsers();
-		this.fetchPatients();
-		this.fetchReferrals();
-	};
-
-	componentWillUnmount() {
-		this.isActive = false;
+	comments
+	referrer {
+		email
 	}
-
-	sortReferrals = (filterKey, filterNonDecreasing) => {
-		if (!filterKey) {
-			filterKey = "createdAt";
-		}
-		this.setState({referrals: this.state.referrals.sort((el1, el2) => {
-			const toString = (obj) => {
-				obj=_get(obj, filterKey);
-				if (obj) return obj.toString();
-				return "";
-			};
-			el1 = toString(el1);
-			el2 = toString(el2);
-			var result = el1.localeCompare(el2);
-			if (!filterNonDecreasing) result *= -1;
-			return result;
-		})});
-	};
-
-	setPaginationHandler = (page) => {
-		this.setState({ activePaginationPage: page });
-	};
-
-	startCreatePatientHandler = () => {
-		this.setState({ creating: true });
-	};
-
-	modalConfirmHandler = async () => {
-		const refereeId = this.refereeElRef.current.value;
-		const toothNumber = this.toothNumberElRef.current.value;
-		const comments = this.commentsElRef.current.value;
-		if (!this.state.selectedPatient || !refereeId || !toothNumber || !comments) {
-			alert("Incomplete Data!");
-			return;
-		}
-		const patientId = this.state.selectedPatient._id;
-
-		this.setState({ isLoading: true });
-		this.modalCancelHandler();
-
-		const formData = {
-			refereeId: refereeId,
-			patientId: patientId,
-			comments: comments,
-			toothNumber: +toothNumber,
-		};
-
-		const requestBody = {
-			query: `
-				mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!, $comments: String){
-					createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber, comments: $comments){
-						${this.requiredReferralInformation}
-					}
-				}
-			`,
-			variables: formData,
-		};
-
-		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			this.setState(prevState => {
-				const updatedReferrals = [...prevState.referrals];
-				updatedReferrals.unshift({
-					...resData.data.createReferral,
-				});
-				return { referrals: updatedReferrals };
-			});
-		} catch (err) {
-			console.log(err);
-		}
-		this.setState({ isLoading: false });
-	};
-
-	modalCancelHandler = () => {
-		this.setState({ creating: false, selectedPatient: null, selectedReferral: null });
+	referee{
+		email
 	}
-
-	showDetailHandler = (referral) => {
-		this.setState({ selectedReferral: referral });
+	createdAt
+	treatmentDate
+	consultationDate
+	attachments{
+		filename
 	}
+`;
 
-	fetchReferrals = async () => {
-		this.setState({ isLoading: true });
+const CREATE_REFERRAL_MUTATION = gql(`
+	mutation CreateReferral ($patientId: ID!, $refereeId: ID!, $toothNumber: Int!, $comments: String, $attachments: [Upload!]){
+		createReferral (patientId: $patientId, refereeId: $refereeId, toothNumber: $toothNumber, comments: $comments, attachments: $attachments){
+			${requiredReferralInformation}
+		}
+	}
+`);
+
+export default (props) => {
+	var isActive = true;
+	const [creating, setCreating] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [referrals, setReferrals] = useState([]);
+	const [patients, setPatients] = useState([]);
+	const [users, setUsers] = useState([]);
+	const [selectedPatient, setSelectedPatient] = useState(null);
+	const [selectedReferral, setSelectedReferral] = useState(null);
+	const [activePaginationPage, setActivePaginationPage] = useState(1);
+	const context = useContext(AuthContext);
+	const [createReferral] = useMutation(CREATE_REFERRAL_MUTATION);
+
+	const patientElRef = React.createRef();
+	const refereeElRef = React.createRef();
+	const toothNumberElRef = React.createRef();
+	const commentsElRef = React.createRef();
+	const attachmentsElRef = React.createRef();
+	const maxDisplayedReferrals = 6;
+
+	const fetchReferrals = async () => {
 		const requestBody = {
 			query: `
 				query {
 					referrals {
-						${this.requiredReferralInformation}
+						${requiredReferralInformation}
 					}
 				}
 			`
 		};
 
 		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			const referrals = resData.data.referrals;
-			if (this.isActive) {
-				this.setState({ referrals: referrals });
+			const resData = await helpers.queryAPI(requestBody, context);
+			if (isActive) {
+				return resData.data.referrals;
 			}
 		} catch (err) {
 			console.log(err);
 		}
-		this.sortReferrals();
-		this.setState({ isLoading: false });
 	}
 
-	fetchPatients = async () => {
-		this.setState({ isLoading: true });
+	const fetchPatients = async () => {
 		const requestBody = {
 			query: `
 				query {
@@ -195,19 +104,14 @@ class ReferralsPage extends Component {
 		};
 
 		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			const patients = resData.data.patients;
-			if (this.isActive) {
-				this.setState({ patients: patients });
-			}
+			const resData = await helpers.queryAPI(requestBody, context);
+			return resData.data.patients;
 		} catch (err) {
 			console.log(err);
 		}
-		this.setState({ isLoading: false });
 	}
 
-	fetchUsers = async () => {
-		this.setState({ isLoading: true });
+	const fetchUsers = async () => {
 		const requestBody = {
 			query: `
 				query {
@@ -220,112 +124,192 @@ class ReferralsPage extends Component {
 		};
 
 		try {
-			const resData = await helpers.queryAPI(requestBody, this.context);
-			const users = resData.data.users;
-			if (this.isActive) {
-				this.setState({ users: users });
+			const resData = await helpers.queryAPI(requestBody, context);
+			if (isActive) {
+				return resData.data.users;
 			}
 		} catch (err) {
 			console.log(err);
 		}
-		this.setState({ isLoading: false });
 	}
 
-	render() {
-		return (
-			<React.Fragment>
-				{(this.state.creating || this.state.selectedPatient) && (
-					<React.Fragment>
-						<Backdrop />
-						<Modal
-							title="Send Referral"
-							canCancel
-							canConfirm
-							onCancel={this.modalCancelHandler}
-							onConfirm={this.modalConfirmHandler}
-							confirmText="Confirm"
-						>
-							<form>
-								<div className="form-control">
-									<label htmlFor="patient">Patient</label>
-									{!this.state.selectedPatient ? (
-										<PatientSearch
-											patients={this.state.patients}
-											onDetail={((patient) => { this.setState({ selectedPatient: patient }) }).bind(this)}
-											buttonText="Select"
-										/>
-									) : (<div>
-										Selected Patient: <PatientDetails
-											patient={this.state.selectedPatient}
-										/>
-									</div>
-									)}
-								</div>
-								<div className="form-control">
-									<label htmlFor="toothNumber">Tooth Number</label>
-									<input type="number" id="toothNumber" ref={this.toothNumberElRef}></input>
-								</div>
-								<div className="form-control">
-									<label htmlFor="comments">Comments</label>
-									<textarea id="comments" ref={this.commentsElRef}></textarea>
-								</div>
-								<div className="form-control">
-									<label htmlFor="referee">Doctor</label>
-									<select id="referee" ref={this.refereeElRef}>
-										{this.state.users.map(user => {
-											return <option value={user._id}>{user.email}</option>
-										})}
-									</select>
-								</div>
-							</form>
-						</Modal>)
-					</React.Fragment>
-				)}
-				{this.state.selectedReferral && (
-					<React.Fragment>
-						<Backdrop />
-						<Modal
-							title="Referral Details"
-							canCancel
-							canConfirm
-							onCancel={this.modalCancelHandler}
-							onConfirm={this.modalCancelHandler}
-							confirmText={"Confirm"}
-						>
-							<PatientDetails
-								patient={this.state.selectedReferral.patient}
-							/>
-							<h2>Comments: {this.state.selectedReferral.comments}</h2>
-							<h2>Tooth Number: {this.state.selectedReferral.toothNumber}</h2>
-						</Modal>
-					</React.Fragment>
-				)}
-				<div className="events-control">
-					<button className="btn" onClick={this.startCreatePatientHandler}>Create Referral</button>
-				</div>
-				{this.state.isLoading ? (
-					<Spinner />
-				) : (
-					<React.Fragment>
-						<ReferralTable
-							referrals={this.state.referrals.slice(
-								(this.state.activePaginationPage - 1) * this.maxDisplayedReferrals,
-								this.state.activePaginationPage * this.maxDisplayedReferrals,
-							)}
-							onDetail={this.showDetailHandler}
-							sortReferrals={this.sortReferrals.bind(this)}
-						/>
-						<Pagination
-							totalItemCount={this.state.referrals.length}
-							itemsPerPage={this.maxDisplayedReferrals}
-							currentActivePage={this.state.activePaginationPage}
-							setPagination={this.setPaginationHandler.bind(this)}
-						/>
-					</React.Fragment>
-				)}
-			</React.Fragment>
+	useEffect(async () => {
+		setReferrals(await fetchReferrals());
+		setUsers(await fetchUsers());
+		setPatients(await fetchPatients());
+		if (props.location && props.location.state) {
+			setSelectedPatient(props.location.state.selectedPatient);
+		}
+	}, []);
+
+	const sortReferrals = (filterKey, filterNonDecreasing) => {
+		if (!filterKey) {
+			filterKey = "createdAt";
+		}
+		setReferrals(
+			referrals.sort((el1, el2) => {
+				const toString = (obj) => {
+					obj = _get(obj, filterKey);
+					if (obj) return obj.toString();
+					return "";
+				};
+				el1 = toString(el1);
+				el2 = toString(el2);
+				var result = el1.localeCompare(el2);
+				if (!filterNonDecreasing) result *= -1;
+				return result;
+			})
 		);
-	}
-}
+	};
 
-export default ReferralsPage;
+	const setPaginationHandler = (page) => {
+		setActivePaginationPage(page);
+	};
+
+	const startCreateReferralHandler = () => {
+		setCreating(true);
+	};
+
+	const modalConfirmHandler = async () => {
+		const refereeId = refereeElRef.current.value;
+		const toothNumber = toothNumberElRef.current.value;
+		const attachments = attachmentsElRef.current.files;
+		var comments = commentsElRef.current.value;
+		if (!selectedPatient || !refereeId || !toothNumber) {
+			alert("Incomplete Data!");
+			return;
+		}
+		if (!comments) comments = null;
+		const patientId = selectedPatient._id;
+
+		modalCancelHandler();
+
+		const formData = {
+			refereeId: refereeId,
+			patientId: patientId,
+			comments: comments,
+			toothNumber: +toothNumber,
+			attachments: attachments,
+		};
+
+
+		try {
+			const resData = await createReferral({
+			variables: formData,
+		});
+			const newReferrals = [resData.data.createReferral, ...referrals];
+			setReferrals(newReferrals);
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	const modalCancelHandler = () => {
+		setCreating(false);
+		setSelectedPatient(null);
+		setSelectedReferral(null);
+	}
+
+	const showDetailHandler = (referral) => {
+		setSelectedReferral(referral);
+	}
+
+	return (
+		<React.Fragment>
+			{(creating || selectedPatient) && (
+				<React.Fragment>
+					<Backdrop />
+					<Modal
+						title="Send Referral"
+						canCancel
+						canConfirm
+						onCancel={modalCancelHandler}
+						onConfirm={modalConfirmHandler}
+						confirmText="Confirm"
+					>
+						<form>
+							<div className="form-control">
+								<label htmlFor="patient">Patient</label>
+								{!selectedPatient ? (
+									<PatientSearch
+										patients={patients}
+										onDetail={((patient) => { setSelectedPatient(patient) }).bind(this)}
+										buttonText="Select"
+									/>
+								) : (<div>
+									Selected Patient: <PatientDetails
+										patient={selectedPatient}
+									/>
+								</div>
+								)}
+							</div>
+							<div className="form-control">
+								<label htmlFor="toothNumber">Tooth Number</label>
+								<input type="number" id="toothNumber" ref={toothNumberElRef}></input>
+							</div>
+							<div className="form-control">
+								<label htmlFor="comments">Comments</label>
+								<textarea id="comments" ref={commentsElRef}></textarea>
+							</div>
+							<div className="form-control">
+								<label htmlFor="attachments">Attachments</label>
+								<input type="file" multiple id="attachments" ref={attachmentsElRef}></input>
+							</div>
+							<div className="form-control">
+								<label htmlFor="referee">Doctor</label>
+								<select id="referee" ref={refereeElRef}>
+									{users.map(user => {
+										return <option value={user._id}>{user.email}</option>
+									})}
+								</select>
+							</div>
+						</form>
+					</Modal>)
+				</React.Fragment>
+			)}
+			{selectedReferral && (
+				<React.Fragment>
+					<Backdrop />
+					<Modal
+						title="Referral Details"
+						canCancel
+						canConfirm
+						onCancel={modalCancelHandler}
+						onConfirm={modalCancelHandler}
+						confirmText={"Confirm"}
+					>
+						<PatientDetails
+							patient={selectedReferral.patient}
+						/>
+						<h2>Comments: {selectedReferral.comments}</h2>
+						<h2>Tooth Number: {selectedReferral.toothNumber}</h2>
+					</Modal>
+				</React.Fragment>
+			)}
+			<div className="events-control">
+				<button className="btn" onClick={startCreateReferralHandler}>Create Referral</button>
+			</div>
+			{isLoading ? (
+				<Spinner />
+			) : (
+				<React.Fragment>
+					<ReferralTable
+						referrals={referrals.slice(
+							(activePaginationPage - 1) * maxDisplayedReferrals,
+							activePaginationPage * maxDisplayedReferrals,
+						)}
+						onDetail={showDetailHandler}
+						sortReferrals={sortReferrals.bind(this)}
+					/>
+					<Pagination
+						totalItemCount={referrals.length}
+						itemsPerPage={maxDisplayedReferrals}
+						currentActivePage={activePaginationPage}
+						setPagination={setPaginationHandler.bind(this)}
+					/>
+					<ReferralStatistic referrals={referrals} />
+				</React.Fragment>
+			)}
+		</React.Fragment>
+	);
+}

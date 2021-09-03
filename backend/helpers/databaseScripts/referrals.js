@@ -41,6 +41,9 @@ const createReferral = async (patientId, refereeId, toothNumber, comments) => {
 					consultationDate
 					treatmentDate
 					finalReportSent
+					attachments{
+						filename
+					}
 				}
 			}
 		`;

@@ -1,6 +1,14 @@
 const { gql } = require('apollo-server-core');
 
 module.exports = gql(`
+scalar Upload
+
+type File {
+	filename: String!
+	mimetype: String!
+	encoding: String!
+}
+
 type Patient {
 	_id: ID!
 	firstName: String!
@@ -25,6 +33,7 @@ type Referral{
 	consultationDate: String
 	treatmentDate: String
 	finalReportSent: Boolean!
+	attachments: [File!]!
 }
 
 type User {
@@ -63,7 +72,9 @@ type Query {
 type Mutation {
 	createUser(userInput: UserInput): User
 	createPatient(patientInput: PatientInput!): Patient
-	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!, comments: String): Referral!
+	createReferral(patientId: ID!, refereeId: ID!, toothNumber: Int!, comments: String, attachments: [Upload!]): Referral!
 	cancelReferral(referralId: ID!): Referral!
+	singleUpload(file: Upload!): File!
+	multipleUpload(files: [Upload!]!): [File!]!
 }
 `);
