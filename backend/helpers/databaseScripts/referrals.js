@@ -77,9 +77,10 @@ const referrals = async () => {
 		const ref = (await createReferral(patients[0]._id, env.user2._id, Math.floor(Math.random() * 100), "My tooth hasa  cavity")).data.createReferral;
 		console.log(ref);
 		console.log("Generating Referrals...");
-		for (var i=0; i<100; i++){
-			await createReferral(patients[helper.randomInt(patients.length)]._id, env.user2._id, helper.randomInt(50), helper.generateRandomString(100,"a"));
-		}
+		const promises = await Promise.all(Array.apply(null, Array(50)).map(() => {
+			return createReferral(patients[helper.randomInt(patients.length)]._id, env.user2._id, helper.randomInt(50), helper.generateRandomString(100,"a"));
+		},[]));
+		console.log(promises);
 		console.log(await fetchReferrals());
 	} catch (err) {
 		throw err;

@@ -1,7 +1,7 @@
 const helpers = {
 	queryAPI: async (requestBody, context) => {
 		try {
-			const res = await fetch('http://localhost:8000/graphql', {
+			const res = await fetch(process.env.REACT_APP_API_URI, {
 				method: 'POST',
 				body: JSON.stringify(requestBody),
 				headers: {

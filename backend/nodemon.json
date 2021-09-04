@@ -4,6 +4,6 @@
 		"MONGO_PASSWORD": "test",
 		"MONGO_DB": "DA-prototype",
 		"MONGO_CLUSTER": "cluster0.xvemn",
-		"PORT": 8080
+		"PORT": 8000
 	}
 }
