@@ -1,0 +1,9 @@
+{
+	"env":{
+		"MONGO_USER": "admin",
+		"MONGO_PASSWORD": "test",
+		"MONGO_DB": "DA-prototype",
+		"MONGO_CLUSTER": "cluster1234.abcd",
+		"PORT": 8000
+	}
+}
