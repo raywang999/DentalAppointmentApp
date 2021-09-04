@@ -10,6 +10,7 @@
     "apollo-upload-client": "^16.0.0",
     "bootstrap": "^5.1.0",
     "chart.js": "^3.5.0",
+    "graphql": "^15.5.2",
     "lodash.get": "^4.4.2",
     "mongodb": "^4.1.0",
     "react": "^17.0.2",
