@@ -1,6 +1,6 @@
 # Setup
 - Install the required dependencies by running `npm install`
-- copy `.env.example` to `.env` and configure
+- Copy `.env.example` to `.env` and configure
 
 # Getting Started with Create React App
 

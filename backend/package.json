@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "nodemon helpers/databaseScripts/main.js",
-    "start": "nodemon app.js"
+    "start": "nodemon --ignore ./uploads/ app.js"
   },
   "author": "",
   "license": "ISC",
