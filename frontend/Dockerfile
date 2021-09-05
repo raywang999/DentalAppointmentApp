@@ -4,6 +4,8 @@ RUN mkdir -p /services/frontend
 
 COPY . /services/frontend
 
+RUN chmod 777 /services/frontend/start.sh
+
 RUN cd /services/frontend; yarn install
 
 WORKDIR /services/frontend
