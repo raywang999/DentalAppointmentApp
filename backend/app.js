@@ -20,6 +20,10 @@ async function startServer() {
 	await makeDir(UPLOAD_DIRECTORY_URL);
 
 	const app = new express(); //creates express app
+	//Add health check endpoint
+	app.get('/health', (req, res) => {
+		res.status(200).send('Ok');
+	});
 	//Converts incoming files into javascript 
 	app.use(graphqlUploadExpress({
 		maxFileSize: 10000000, // 10 MB
