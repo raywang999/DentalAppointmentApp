@@ -146,8 +146,7 @@ export default (props) => {
 		if (!filterKey) {
 			filterKey = "createdAt";
 		}
-		setReferrals(
-			referrals.sort((el1, el2) => {
+		setReferrals([...referrals].sort((el1, el2) => {
 				const toString = (obj) => {
 					obj = _get(obj, filterKey);
 					if (obj) return obj.toString();
@@ -158,8 +157,7 @@ export default (props) => {
 				var result = el1.localeCompare(el2);
 				if (!filterNonDecreasing) result *= -1;
 				return result;
-			})
-		);
+		}));
 	};
 
 	const setPaginationHandler = (page) => {
@@ -195,8 +193,8 @@ export default (props) => {
 
 		try {
 			const resData = await createReferral({
-			variables: formData,
-		});
+				variables: formData,
+			});
 			const newReferrals = [resData.data.createReferral, ...referrals];
 			setReferrals(newReferrals);
 		} catch (err) {

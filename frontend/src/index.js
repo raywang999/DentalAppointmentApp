@@ -28,7 +28,7 @@ const client = new ApolloClient({
   cache,
   ssrMode: typeof window === 'undefined',
   link: authLink.concat(createUploadLink({
-    uri: 'http://localhost:8000/graphql',
+    uri: process.env.REACT_APP_API_URI,
   })),
 });
 
